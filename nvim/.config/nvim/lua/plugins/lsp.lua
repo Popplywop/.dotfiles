@@ -18,7 +18,8 @@ return {
           "powershell_es",
           "lemminx",
           "omnisharp",
-          "jsonls"
+          "jsonls",
+          "tsserver"
         },
         opts = { inlay_hints = { enabled = true } }
       })
@@ -82,6 +83,9 @@ return {
         capabilitiej = capabilities,
       })
       lspconfig.jsonls.setup({
+        capabilities = capabilities,
+      })
+      lspconfig.tsserver.setup({
         capabilities = capabilities,
       })
       lspconfig.omnisharp.setup({

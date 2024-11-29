@@ -19,7 +19,7 @@ return {
           "lemminx",
           "omnisharp",
           "jsonls",
-          "tsserver"
+          "ts_ls"
         },
         opts = { inlay_hints = { enabled = true } }
       })
@@ -85,7 +85,7 @@ return {
       lspconfig.jsonls.setup({
         capabilities = capabilities,
       })
-      lspconfig.tsserver.setup({
+      lspconfig.ts_ls.setup({
         capabilities = capabilities,
       })
       lspconfig.omnisharp.setup({

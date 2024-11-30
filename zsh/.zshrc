@@ -22,5 +22,8 @@ DOTNET_ROOT="/usr/share/dotnet"
 # PATH ASSIGNMENT
 PATH="$PATH:/home/jpopple/.local/bin:$DOTNET_ROOT:$DOTNET_ROOT/tools"
 
+# START SSH-AGENT
+eval $(ssh-agent -s)
+
 # OHMYPOSH INIT
 eval "$(oh-my-posh init zsh --config "~/.dotfiles/ohmyposh/catppuccin-latte-custom.omp.json")"

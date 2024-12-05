@@ -42,7 +42,7 @@ return {
 
       local lspconfig = require("lspconfig")
 
-      local omnisharp_path = vim.fn.expand("$HOME/.config/omnisharp/OmniSharp.dll")
+      local omnisharp_path = vim.fn.expand("$HOME/.config/Omnisharp/OmniSharp.dll")
       local ps_path = vim.fn.expand("$HOME/.config/PowerShellEditorServices/")
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()

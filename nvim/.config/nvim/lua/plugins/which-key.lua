@@ -17,7 +17,9 @@ return {
         { "<leader>w",  group = "[W]orkspace" },
         { "<leader>w_", hidden = true },
         { "<leader>o", group = "[O]mnisharp" },
-        { "<leader>o_", hidden = true }
+        { "<leader>o_", hidden = true },
+        { "<leader>e", group = "[E]dit" },
+        { "<leader>e_", hidden = true }
       }
     end,
   },

@@ -8,9 +8,16 @@ vim.keymap.set('i', '<C-c>', "<Esc>")
 vim.keymap.set('n', 'Q', '<nop>')
 vim.keymap.set('x', '<leader>p', [["_dP]])
 
-vim.keymap.set('n', '<leader>ec', '<cmd>e ~/.dotfiles/nvim/.config/nvim/init.lua<CR>', { desc = 'Edit config files' })
 
 -- inlay hints
 vim.keymap.set('n', '<leader>H', function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end, { desc = 'Show inlay hints' })
+
+------- EDITING FILES --------
+
+-- Very specific to editing my episode_info text files used to rename .mkv files that i take from my dvds
+vim.keymap.set('n', '<leader>eei', [[:%s/e01/\=printf('e%02d', line('.'))/g<CR>]], { desc = 'Edit episode info text file' })
+
+-- Edit neovim config
+vim.keymap.set('n', '<leader>ec', '<cmd>e ~/.dotfiles/nvim/.config/nvim/init.lua<CR>', { desc = 'Edit config files' })

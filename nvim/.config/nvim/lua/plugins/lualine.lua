@@ -2,7 +2,7 @@ return {
   {
     -- status line enhancements
     "nvim-lualine/lualine.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    dependencies = { { "echasnovski/mini.icons", opts = {} } },
     config = function()
       require("lualine").setup({
         options = { theme = "catppuccin" },

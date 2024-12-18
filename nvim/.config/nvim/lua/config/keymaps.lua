@@ -7,6 +7,10 @@ vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help ta
 vim.keymap.set('i', '<C-c>', "<Esc>")
 vim.keymap.set('n', 'Q', '<nop>')
 vim.keymap.set('x', '<leader>p', [["_dP]])
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv") -- move current line down
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv") -- move current line up
+vim.keymap.set("n", "<C-d>", "<C-d>zz") -- jump one page down and center
+vim.keymap.set("n", "<C-u>", "<C-u>zz") -- jump one page up and center
 
 ------ Terminal -------
 vim.api.nvim_create_autocmd('TermOpen', {

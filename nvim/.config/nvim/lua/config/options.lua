@@ -47,6 +47,7 @@ vim.opt.directory = vim.fn.stdpath('data') .. 'tmp'
 vim.opt.undodir = vim.fn.stdpath('data') .. 'undo'
 
 vim.api.nvim_set_hl(0, 'WinSeparator', { bg = 'None' })
+vim.opt.hlsearch = false
 
 -- vim.highlight.create('WinSeparator', { guibg = none }, false)
 vim.g['netrw_banner'] = 0

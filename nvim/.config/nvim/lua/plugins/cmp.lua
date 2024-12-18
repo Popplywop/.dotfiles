@@ -2,7 +2,6 @@ local function cmp_setup()
   local cmp     = require("cmp")
   -- lspkind.lua
   local lspkind = require("lspkind")
-  -- vim.api.nvim_set_hl(0, "CmpItemKindCopilot")
 
   require("luasnip.loaders.from_vscode").lazy_load()
 

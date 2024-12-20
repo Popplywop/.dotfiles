@@ -1,7 +1,16 @@
 local wezterm = require 'wezterm';
 local config = {}
 
-config.default_prog = { 'zsh' }
+local is_windows = function()
+  return wezterm.target_triple:find("windows") ~= nil
+end
+
+if is_windows() then
+  config.default_prog = { 'pwsh.exe' }
+else
+  config.default_prog = { 'zsh' }
+end
+
 config.enable_tab_bar = false
 config.adjust_window_size_when_changing_font_size = false
 config.default_cursor_style = 'SteadyBar'
@@ -15,6 +24,8 @@ config.font_size = 11.5
 
 local opacity = 0.7
 config.window_background_opacity = opacity
+
+config.window_decorations = 'RESIZE'
 
 wezterm.on("toggle-opacity", function(window, pane)
   local overrides = window:get_config_overrides() or {}

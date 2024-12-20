@@ -23,7 +23,11 @@ config.font = wezterm.font('JetBrainsMono Nerd Font', { weight = 'Bold', italic 
 config.font_size = 11.5
 
 local opacity = 0.7
-config.window_background_opacity = opacity
+
+-- powershell opacity is annoying so if on windows just dont set the background opacity
+if not is_windows() then
+  config.window_background_opacity = opacity
+end
 
 config.window_decorations = 'RESIZE'
 

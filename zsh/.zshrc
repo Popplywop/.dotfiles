@@ -15,6 +15,7 @@ compinit
 # ALIASES
 alias ls="ls -la"
 alias src="exec zsh"
+alias srvunlock="ssh -i ~/.ssh/dropbear -p 4748 -o 'HostKeyAlgorithms ssh-rsa' root@192.168.51.65"
 
 # DOTNET ROOT
 DOTNET_ROOT="/usr/share/dotnet"

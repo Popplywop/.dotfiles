@@ -23,6 +23,11 @@ DOTNET_ROOT="/usr/share/dotnet"
 # PATH ASSIGNMENT
 PATH="$PATH:/home/jpopple/.local/bin:$DOTNET_ROOT:$DOTNET_ROOT/tools"
 
+#LUA PATH
+export LUA_PATH=";;"
+# LUA CPATH
+export LUA_CPATH=";;/home/jpopple/.luarocks/lib/lua/5.4/?.so"
+
 # START SSH-AGENT
 eval $(keychain --agents ssh --eval ~/.ssh/id_ed25519 --noask)
 

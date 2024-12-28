@@ -67,7 +67,6 @@ local function cmp_setup()
           gh_issues = "<git",
           ctags     = "<tag",
           copilot   = "<ia",
-          -- codeium   = "<ia"
         },
         symbol_map = {
           Copilot = "",

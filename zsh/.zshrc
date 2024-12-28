@@ -28,8 +28,5 @@ export LUA_PATH=";;"
 # LUA CPATH
 export LUA_CPATH=";;/home/jpopple/.luarocks/lib/lua/5.4/?.so"
 
-# START SSH-AGENT
-eval $(keychain --agents ssh --eval ~/.ssh/id_ed25519 --noask)
-
 # OHMYPOSH INIT
 eval "$(oh-my-posh init zsh --config "~/.dotfiles/ohmyposh/catppuccin-latte-custom.omp.json")"

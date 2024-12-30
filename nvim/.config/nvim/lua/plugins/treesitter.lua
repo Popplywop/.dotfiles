@@ -23,9 +23,12 @@ return {
           "highlight",
           "incremental_selection",
           "indent",
-          -- "rainbow",
+          "rainbow",
         },
-        highlight = { enable = true },
+        highlight = {
+          enable = true,
+          disable = { "csv", }
+        },
         indent = { enable = true },
       })
 

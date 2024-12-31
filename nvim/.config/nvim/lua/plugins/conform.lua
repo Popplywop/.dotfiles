@@ -1,9 +1,11 @@
 return {
   'stevearc/conform.nvim',
-  config = function ()
+  config = function()
     require("conform").setup({
-      formatters_by_ft = {
-        sql = { "sqlfluff", lsp_format = "fallback" }
+      formatters = {
+        sqlfluff = {
+          command = vim.fn.expand("$HOME/.local/bin/sqlfluff")
+        }
       }
     })
   end

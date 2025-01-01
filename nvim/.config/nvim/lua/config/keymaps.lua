@@ -35,3 +35,10 @@ vim.keymap.set('n', '<leader>eei', [[:%s/e01/\=printf('e%02d', line('.'))/g<CR>]
 
 -- Edit neovim config
 vim.keymap.set('n', '<leader>ec', '<cmd>e ~/.dotfiles/nvim/.config/nvim/init.lua<CR>', { desc = 'Edit config files' })
+
+vim.keymap.set('v', '<leader>q', function ()
+  local db = vim.api.nvim_buf_get_var(0, 'db')
+  vim.cmd.normal('"zy')
+  local selection = vim.fn.getreg('z')
+  vim.cmd('DB ' .. db .. " " .. selection)
+end)

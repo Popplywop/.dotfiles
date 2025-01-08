@@ -1,4 +1,5 @@
 local wezterm = require 'wezterm';
+local act = wezterm.action
 local config = {}
 
 local is_windows = function()
@@ -11,7 +12,9 @@ else
   config.default_prog = { 'zsh' }
 end
 
-config.enable_tab_bar = false
+config.enable_tab_bar = true
+config.tab_bar_at_bottom = true
+
 config.adjust_window_size_when_changing_font_size = false
 config.default_cursor_style = 'SteadyBar'
 
@@ -47,12 +50,24 @@ config.keys = {
   {
     key = 'w',
     mods = 'LEADER',
-    action = wezterm.action.CloseCurrentTab { confirm = true }
+    action = act.CloseCurrentTab { confirm = true }
   },
   {
     key = "O",
     mods = "CTRL",
-    action = wezterm.action.EmitEvent("toggle-opacity"),
+    action = act.EmitEvent("toggle-opacity"),
+  },
+  {
+    key = 'E',
+    mods = 'CTRL|SHIFT',
+    action = act.PromptInput {
+      description = "Enter new name for tab",
+      action = wezterm.action_callback(function(window, pane, line)
+        if line then
+          window:active_tab():set_title(line)
+        end
+      end),
+    }
   }
 }
 

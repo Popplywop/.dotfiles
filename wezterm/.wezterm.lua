@@ -60,7 +60,7 @@ config.keys = {
   {
     key = 'E',
     mods = 'CTRL|SHIFT',
-    action = act.PromptInput {
+    action = act.PromptInputLine {
       description = "Enter new name for tab",
       action = wezterm.action_callback(function(window, pane, line)
         if line then

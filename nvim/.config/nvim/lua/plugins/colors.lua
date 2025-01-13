@@ -16,7 +16,7 @@ return {
           which_key = true,
         }
       })
-      vim.opt.background = "light"
+      vim.opt.background = "dark"
       vim.cmd.colorscheme("catppuccin")
     end
   }

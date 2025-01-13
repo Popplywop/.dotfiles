@@ -18,7 +18,7 @@ config.tab_bar_at_bottom = true
 config.adjust_window_size_when_changing_font_size = false
 config.default_cursor_style = 'SteadyBar'
 
-config.color_scheme = 'Catppuccin Latte'
+config.color_scheme = 'Catppuccin Mocha'
 
 config.front_end = 'OpenGL'
 

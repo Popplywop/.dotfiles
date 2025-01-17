@@ -14,9 +14,6 @@ return {
           "lua_ls",
           "cssls",
           "html",
-          "eslint",
-          "powershell_es",
-          "lemminx",
           "omnisharp",
           "jsonls",
           "ts_ls"
@@ -79,9 +76,6 @@ return {
           })
         end,
       })
-      lspconfig.lemminx.setup({
-        capabilitiej = capabilities,
-      })
       lspconfig.jsonls.setup({
         capabilities = capabilities,
       })
@@ -117,13 +111,6 @@ return {
           local fallback = require("lspconfig.util").root_pattern("*.csproj")(fname)
           return primary or fallback
         end,
-      })
-      lspconfig.powershell_es.setup({
-        bundle_path = ps_path,
-        capabilities = capabilities,
-        init_options = {
-          enabledProfileLoading = false,
-        },
       })
 
       local RangeFormat = function()

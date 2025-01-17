@@ -37,18 +37,6 @@ return {
       if (vim.fn.has('win32')) then
         root_path = root_path .. "AppData/Local/nvim-data/tree-sitter-powershell"
       end
-
-      local ts_parser_configs = require("nvim-treesitter.parsers").get_parser_configs()
-      ts_parser_configs["powershell"] = {
-        install_info = {
-          url = root_path,
-          files = { "src/parser.c", "src/scanner.c" },
-          branch = "master",
-          generate_requires_npm = false,
-          requires_generate_from_grammer = false,
-        },
-        filetype = "ps1",
-      }
     end,
   },
   {

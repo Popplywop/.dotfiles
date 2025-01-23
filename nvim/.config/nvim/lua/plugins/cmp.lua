@@ -83,7 +83,6 @@ local function cmp_setup()
   })
   cmp.setup.filetype("sql", {
     sources = cmp.config.sources({
-      { name = "vim-dadbod-completion" },
       { name = "buffer" },
       { name = "copilot" },
     })

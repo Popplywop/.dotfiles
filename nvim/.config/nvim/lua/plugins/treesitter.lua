@@ -16,7 +16,8 @@ return {
           "vimdoc",
           "javascript",
           "html",
-          "c_sharp"
+          "c_sharp",
+          "sql"
         },
         sync_install = false,
         modules = {

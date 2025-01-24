@@ -12,16 +12,6 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv") -- move current line up
 vim.keymap.set("n", "<C-d>", "<C-d>zz")      -- jump one page down and center
 vim.keymap.set("n", "<C-u>", "<C-u>zz")      -- jump one page up and center
 
------- Terminal -------
-vim.api.nvim_create_autocmd('TermOpen', {
-  group = vim.api.nvim_create_augroup('custom-term-open', { clear = true }),
-  callback = function()
-    vim.opt.number = false
-    vim.opt.relativenumber = false
-  end,
-})
-
-
 -- inlay hints
 vim.keymap.set('n', '<leader>H', function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())

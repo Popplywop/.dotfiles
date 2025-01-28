@@ -25,3 +25,15 @@ vim.keymap.set('n', '<leader>eei', [[:%s/e01/\=printf('e%02d', line('.'))/g<CR>]
 
 -- Edit neovim config
 vim.keymap.set('n', '<leader>ec', '<cmd>e ~/.dotfiles/nvim/.config/nvim/init.lua<CR>', { desc = 'Edit config files' })
+
+vim.keymap.set('n', '<leader>xQ', function ()
+  if (vim.bo.filetype ~= "sql")
+  then
+    print("Not a sql file")
+    return
+  end
+  local bufnr = vim.api.nvim_get_current_buf()
+  local bufText = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  local text = table.concat(bufText, "\n")
+  vim.fn.system({ "sqlcmd", "-Q", text })
+end, { desc = 'Execute sql query' })

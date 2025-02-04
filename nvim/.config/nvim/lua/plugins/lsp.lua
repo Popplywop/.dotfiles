@@ -16,7 +16,8 @@ return {
           "html",
           "omnisharp",
           "jsonls",
-          "ts_ls"
+          "ts_ls",
+          "pyright"
         },
         opts = { inlay_hints = { enabled = true } }
       })
@@ -111,6 +112,9 @@ return {
           local fallback = require("lspconfig.util").root_pattern("*.csproj")(fname)
           return primary or fallback
         end,
+      })
+      lspconfig.pyright.setup({
+        capabilities = capabilities,
       })
 
       local RangeFormat = function()

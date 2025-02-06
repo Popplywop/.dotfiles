@@ -115,6 +115,18 @@ return {
       })
       lspconfig.pyright.setup({
         capabilities = capabilities,
+        settings = {
+          pyright = {
+            openFilesOnly = true,
+          },
+          python = {
+            analysis = {
+              autoImportCompletions = true,
+              autoSearchPaths = true,
+            },
+            venvPath = "~/.config/python/venv/"
+          }
+        }
       })
 
       local RangeFormat = function()

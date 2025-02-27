@@ -8,8 +8,10 @@ end
 
 if is_windows() then
   config.default_prog = { 'pwsh.exe' }
+  config.font = wezterm.font('Monofur Nerd Font', { weight = 'Bold', italic = false })
 else
   config.default_prog = { 'zsh' }
+  config.font = wezterm.font('JetBrainsMono Nerd Font', { weight = 'Bold', italic = false })
 end
 
 config.enable_tab_bar = true
@@ -22,7 +24,6 @@ config.color_scheme = 'Catppuccin Mocha'
 
 config.front_end = 'OpenGL'
 
-config.font = wezterm.font('JetBrainsMono Nerd Font', { weight = 'Bold', italic = false })
 config.font_size = 11.5
 
 local opacity = 0.7
@@ -68,7 +69,12 @@ config.keys = {
         end
       end),
     }
-  }
+  },
+  {
+    key = "r",
+    mods = "LEADER",
+    action = act.ReloadConfiguration
+  },
 }
 
 return config

@@ -1,0 +1,13 @@
+font-family = Monofur Nerd Font Mono
+font-family-bold = Monofur Nerd Font Bold
+font-style = bold
+font-size = 14
+
+theme = catppuccin-mocha
+
+shell-integration = bash
+shell-integration-features = true
+
+window-inherit-font-size = false
+window-decoration = server
+window-title-font-family = Monofur Nerd Font Mono

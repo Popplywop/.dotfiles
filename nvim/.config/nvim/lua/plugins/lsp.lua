@@ -12,12 +12,7 @@ return {
       require("mason-lspconfig").setup({
         ensure_installed = {
           "lua_ls",
-          "cssls",
-          "html",
           "omnisharp",
-          "jsonls",
-          "ts_ls",
-          "pyright"
         },
         opts = { inlay_hints = { enabled = true } }
       })
@@ -41,7 +36,6 @@ return {
       local lspconfig = require("lspconfig")
 
       local omnisharp_path = vim.fn.expand("$HOME/.config/Omnisharp/OmniSharp.dll")
-      local ps_path = vim.fn.expand("$HOME/.config/PowerShellEditorServices/")
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       local keymap = function(mode, key, action, bufnr, desc)
@@ -61,27 +55,6 @@ return {
             hint = { enable = true }
           }
         }
-      })
-      lspconfig.cssls.setup({
-        capabilities = capabilities,
-      })
-      lspconfig.html.setup({
-        capabilities = capabilities,
-      })
-      lspconfig.eslint.setup({
-        capabilities = capabilities,
-        on_attach = function(client, bufnr)
-          vim.api.nvim_create_autocmd("BufWritePre", {
-            buffer = bufnr,
-            command = "EslintFixAll",
-          })
-        end,
-      })
-      lspconfig.jsonls.setup({
-        capabilities = capabilities,
-      })
-      lspconfig.ts_ls.setup({
-        capabilities = capabilities,
       })
       lspconfig.omnisharp.setup({
         cmd = { "dotnet", omnisharp_path },
@@ -112,21 +85,6 @@ return {
           local fallback = require("lspconfig.util").root_pattern("*.csproj")(fname)
           return primary or fallback
         end,
-      })
-      lspconfig.pyright.setup({
-        capabilities = capabilities,
-        settings = {
-          pyright = {
-            openFilesOnly = true,
-          },
-          python = {
-            analysis = {
-              autoImportCompletions = true,
-              autoSearchPaths = true,
-            },
-            venvPath = "~/.config/python/venv/"
-          }
-        }
       })
 
       local RangeFormat = function()

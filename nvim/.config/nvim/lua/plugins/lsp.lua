@@ -34,8 +34,15 @@ return {
       require("neodev").setup({})
 
       local lspconfig = require("lspconfig")
+      local omnisharp_path = nil
 
-      local omnisharp_path = vim.fn.expand("$HOME/.config/Omnisharp/OmniSharp.dll")
+      if (vim.fn.has('win32')) then
+        omnisharp_path = vim.fn.expand("$HOME/.config/Omnisharp/OmniSharp.dll")
+      end
+
+      if (vim.fn.has('unix')) then
+        omnisharp_path = vim.fn.expand("~/.local/share/nvim/mason/packages/omnisharp/libexec/OmniSharp.dll")
+      end
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       local keymap = function(mode, key, action, bufnr, desc)

@@ -14,14 +14,12 @@ set $down j
 set $up k
 set $right l
 # Your preferred terminal emulator
-set $term wezterm
+set $term wezterm 
 # Your preferred application launcher
-set $menu wmenu-run
+set $menu j4-dmenu-desktop
 
 ### Output configuration
 #
-# Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
-output * bg ~/Pictures/Eighty-Six.jpg fill
 #
 # Example configuration:
 #

@@ -13,6 +13,7 @@ return {
         ensure_installed = {
           "lua_ls",
           "omnisharp",
+          "fsautocomplete"
         },
         opts = { inlay_hints = { enabled = true } }
       })
@@ -26,6 +27,9 @@ return {
   },
   {
     "Hoffs/omnisharp-extended-lsp.nvim",
+  },
+  {
+    "ionide/Ionide-vim",
   },
   {
     "neovim/nvim-lspconfig",

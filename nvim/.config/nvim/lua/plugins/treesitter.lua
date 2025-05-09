@@ -24,11 +24,9 @@ return {
           "highlight",
           "incremental_selection",
           "indent",
-          "rainbow",
         },
         highlight = {
-          enable = true,
-          disable = { "csv", }
+          enable = true
         },
         indent = { enable = true },
       })
@@ -39,10 +37,6 @@ return {
         root_path = root_path .. "AppData/Local/nvim-data/tree-sitter-powershell"
       end
     end,
-  },
-  {
-    -- Show delimiters in alternating colors
-    "HiPhish/rainbow-delimiters.nvim",
   },
   {
     -- Show code context (fixing scope lines to the top)

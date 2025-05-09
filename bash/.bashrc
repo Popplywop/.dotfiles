@@ -120,3 +120,16 @@ export DOTNET_ROOT=$HOME/.dotnet
 export PATH="$HOME/zig/zig-linux-x86_64-0.13.0:$HOME/ghostty:$HOME/.local/bin:$PATH:/opt/nvim-linux-x86_64/bin:$DOTNET_ROOT:$DOTNET_ROOT/tools:/usr/local/go/bin"
 
 eval "$(oh-my-posh init bash --config $HOME/.cache/oh-my-posh/themes/catppuccin_mocha.omp.json)"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# pnpm
+export PNPM_HOME="/home/jpopple/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+. "$HOME/.cargo/env"

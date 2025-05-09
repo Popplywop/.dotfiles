@@ -8,10 +8,9 @@ end
 
 if is_windows() then
   config.default_prog = { 'pwsh.exe' }
-  config.font = wezterm.font('Monofur Nerd Font', { weight = 'Bold', italic = false })
 else
-  config.default_prog = { 'zsh' }
-  config.font = wezterm.font('JetBrainsMono Nerd Font', { weight = 'Bold', italic = false })
+  config.default_prog = { 'bash' }
+  config.enable_wayland = true
 end
 
 config.enable_tab_bar = true
@@ -55,7 +54,7 @@ config.keys = {
   },
   {
     key = "O",
-    mods = "CTRL",
+    mods = "CTRL|SHIFT",
     action = act.EmitEvent("toggle-opacity"),
   },
   {

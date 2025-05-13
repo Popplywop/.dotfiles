@@ -3,9 +3,6 @@ local function cmp_setup()
   -- lspkind.lua
   local lspkind = require("lspkind")
 
-  require("luasnip.loaders.from_vscode").lazy_load()
-
-  -- initialize global var to false -> nvim-cmp turned off per default
   vim.g.cmptoggle = true
   vim.keymap.set(
     "n",
@@ -90,12 +87,6 @@ local function cmp_setup()
 end
 
 return {
-  {
-    "zbirenbaum/copilot-cmp",
-    config = function()
-      require("copilot_cmp").setup()
-    end
-  },
   -- Autocompletion
   { "hrsh7th/nvim-cmp",            config = cmp_setup },
   { "hrsh7th/cmp-buffer" },   -- completions from buffer
@@ -103,12 +94,6 @@ return {
   { "hrsh7th/cmp-cmdline" },  -- completions from cmd line
   { "hrsh7th/cmp-nvim-lsp" }, -- completions from LSP
   { "hrsh7th/cmp-nvim-lua" }, -- neovim lua API
-
-  -- Snippets
-  { "L3MON4D3/LuaSnip" },
-  { "saadparwaiz1/cmp_luasnip" },     -- LuaSnip completions
-  { "rafamadriz/friendly-snippets" }, -- vscode-like snippes
-
   -- UI
   { "onsails/lspkind.nvim" }, -- add nerd icons to completion menu sources
 

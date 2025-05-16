@@ -12,20 +12,37 @@ else
   config.default_prog = { 'bash' }
   config.enable_wayland = false
 end
+config.font = wezterm.font('Monofur Nerd Font', { weight = 'Bold', italic = false })
 
 config.enable_tab_bar = true
+config.use_fancy_tab_bar = false
 config.tab_bar_at_bottom = true
 
 config.adjust_window_size_when_changing_font_size = false
 config.default_cursor_style = 'SteadyBar'
 
-config.color_scheme = 'Catppuccin Mocha'
+config.color_scheme = 'Catppuccin Macchiato'
+config.colors = {
+  tab_bar = {
+    background = '#24273a',
+    active_tab = {
+      bg_color = '#24273a',
+      fg_color = '#a6da95',
+    },
+    inactive_tab = {
+      bg_color = '#24273a',
+      fg_color = '#cad3f5',
+    },
+    new_tab = {
+      bg_color = '#24273a',
+      fg_color = '#a6da95',
+    }
+  }
+}
 
 config.front_end = 'OpenGL'
 
 config.font_size = 11.5
-
-local opacity = 0.7
 
 config.window_decorations = 'RESIZE'
 

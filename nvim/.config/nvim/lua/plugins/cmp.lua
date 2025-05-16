@@ -47,7 +47,7 @@ local function cmp_setup()
       { name = "path" },
       { name = "luasnip" },
       { name = "buffer",  keyword_length = 3 },
-      { name = "copilot" },
+      { name = "vim-dadbod-completion" },
     },
     ---@diagnostic disable-next-line: missing-fields
     formatting = {
@@ -61,27 +61,14 @@ local function cmp_setup()
           nvim_lua  = "<api",
           path      = "<path",
           lua_snip  = "<snip",
-          gh_issues = "<git",
-          ctags     = "<tag",
-          copilot   = "<ia",
         },
-        symbol_map = {
-          Copilot = "",
-        }
       }),
     },
-  })
-  -- Set configuration for specific filetype.
-  cmp.setup.filetype("gitcommit", {
-    sources = cmp.config.sources({
-      { name = "git" }, -- You can specify the `git` source if [you were installed it](https://github.com/petertriho/cmp-git).
-      { name = "buffer" },
-    }),
   })
   cmp.setup.filetype("sql", {
     sources = cmp.config.sources({
       { name = "buffer" },
-      { name = "copilot" },
+      { name = "vim-dadbod-completion" },
     })
   })
 end

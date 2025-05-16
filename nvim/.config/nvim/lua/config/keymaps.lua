@@ -12,21 +12,23 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv") -- move current line up
 vim.keymap.set("n", "<C-d>", "<C-d>zz")      -- jump one page down and center
 vim.keymap.set("n", "<C-u>", "<C-u>zz")      -- jump one page up and center
 
+-- remap <C-w>w to <leader>w
+-- This may go back to normal when i get a split keyboard?
+vim.keymap.set("n", "<leader>ww", "<C-w>w", { desc = "Window Swap" })
+vim.keymap.set("n", "<leader>wv", "<C-w>v", { desc = "Window Split Vertical" })
+vim.keymap.set("n", "<leader>wq", "<C-w>q", { desc = "Window Quit" })
+vim.keymap.set("n", "<leader>wj", "<C-w>j", { desc = "Window Down" })
+vim.keymap.set("n", "<leader>wk", "<C-w>k", { desc = "Window Up" })
+vim.keymap.set("n", "<leader>wh", "<C-w>h", { desc = "Window Left" })
+vim.keymap.set("n", "<leader>wl", "<C-w>l", { desc = "Window Right" })
+
 -- inlay hints
 vim.keymap.set('n', '<leader>H', function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end, { desc = 'Show inlay hints' })
 
-------- EDITING FILES --------
-
--- Very specific to editing my episode_info text files used to rename .mkv files that i take from my dvds
-vim.keymap.set('n', '<leader>eei', [[:%s/e01/\=printf('e%02d', line('.'))/g<CR>]],
-  { desc = 'Edit episode info text file' })
-
--- Edit neovim config
-vim.keymap.set('n', '<leader>ec', '<cmd>e ~/.dotfiles/nvim/.config/nvim/init.lua<CR>', { desc = 'Edit config files' })
-
-vim.keymap.set('n', '<leader>xQ', function ()
+-- Execute sql, mainly useful for executing stored procedures
+vim.keymap.set('n', '<leader>xS', function ()
   if (vim.bo.filetype ~= "sql")
   then
     print("Not a sql file")

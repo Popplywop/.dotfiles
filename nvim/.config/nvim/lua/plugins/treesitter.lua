@@ -10,7 +10,6 @@ return {
         ignore_install = {},
         auto_install = true,
         ensure_installed = {
-          "c",
           "lua",
           "vim",
           "vimdoc",
@@ -30,12 +29,6 @@ return {
         },
         indent = { enable = true },
       })
-
-      local root_path = vim.fn.expand("$HOME/")
-
-      if (vim.fn.has('win32')) then
-        root_path = root_path .. "AppData/Local/nvim-data/tree-sitter-powershell"
-      end
     end,
   },
   {

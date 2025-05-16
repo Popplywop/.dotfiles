@@ -12,7 +12,7 @@ return {
         { "<leader>c_", hidden = true },
         { "<leader>s",  group = "[S]earch" },
         { "<leader>s_", hidden = true },
-        { "<leader>w",  group = "[W]orkspace" },
+        { "<leader>w",  group = "[W]indow" },
         { "<leader>w_", hidden = true },
         { "<leader>o", group = "[O]mnisharp" },
         { "<leader>o_", hidden = true },

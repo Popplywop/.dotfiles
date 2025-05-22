@@ -1,23 +1,24 @@
 return {
   {
-    "mason-org/mason.nvim",
-    cmd = "Mason",
+    "mason-org/mason-lspconfig.nvim",
     opts = {
-      PATH = "prepend"
+      automatic_enable = false,
+      ensure_installed = {
+        "lua_ls",
+        "omnisharp",
+        "fsautocomplete"
+      },
+      inlay_hints = { enabled = true }
     },
-  },
-  {
-    "williamboman/mason-lspconfig.nvim",
-    config = function()
-      require("mason-lspconfig").setup({
-        ensure_installed = {
-          "lua_ls",
-          "omnisharp",
-          "fsautocomplete"
+    dependencies = {
+      {
+        "mason-org/mason.nvim",
+        cmd = "Mason",
+        opts = {
+          PATH = "prepend"
         },
-        opts = { inlay_hints = { enabled = true } }
-      })
-    end,
+      },
+    },
   },
   {
     "folke/neodev.nvim",

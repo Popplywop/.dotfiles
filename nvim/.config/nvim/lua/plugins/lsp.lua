@@ -21,10 +21,7 @@ return {
     },
   },
   {
-    "folke/neodev.nvim",
-    config = function()
-      require("neodev").setup({})
-    end,
+    "folke/lazydev.nvim", opts = {}
   },
   {
     "Hoffs/omnisharp-extended-lsp.nvim",
@@ -36,8 +33,6 @@ return {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufnewFile" },
     config = function()
-      require("neodev").setup({})
-
       local lspconfig = require("lspconfig")
       local omnisharp_path = nil
 

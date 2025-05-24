@@ -2,7 +2,7 @@ return {
   {                     -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VeryLazy', -- Sets the loading event to 'VeryLazy'
-    config = function() -- This is the function that runs, AFTER loading
+    opts = function(_, opts) -- This is the function that runs, AFTER loading
       local wk = require('which-key')
       wk.setup()
 

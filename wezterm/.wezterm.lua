@@ -22,6 +22,7 @@ config.adjust_window_size_when_changing_font_size = false
 config.default_cursor_style = 'SteadyBar'
 
 config.color_scheme = 'Catppuccin Macchiato'
+
 config.colors = {
   tab_bar = {
     background = '#24273a',

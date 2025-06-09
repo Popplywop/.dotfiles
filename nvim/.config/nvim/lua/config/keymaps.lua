@@ -26,16 +26,3 @@ vim.keymap.set("n", "<leader>wl", "<C-w>l", { desc = "Window Right" })
 vim.keymap.set('n', '<leader>H', function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end, { desc = 'Show inlay hints' })
-
--- Execute sql, mainly useful for executing stored procedures
-vim.keymap.set('n', '<leader>xS', function ()
-  if (vim.bo.filetype ~= "sql")
-  then
-    print("Not a sql file")
-    return
-  end
-  local bufnr = vim.api.nvim_get_current_buf()
-  local bufText = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-  local text = table.concat(bufText, "\n")
-  vim.fn.system({ "sqlcmd", "-Q", text })
-end, { desc = 'Execute sql query' })

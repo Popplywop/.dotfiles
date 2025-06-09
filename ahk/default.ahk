@@ -61,12 +61,9 @@
     }
 }
 
-; Launch glazewm once the script loads, this will let me know ahk is loaded up
-try
-{
-    Run "C:\Users\JPOPPLE\scoop\apps\glazewm\3.8.1\glazewm.exe"
-}
-catch Error as e
-{
-    MsgBox "Error launching GlazeWM: " e.Message
-}
+; Media Keys
+; Alt+f11
+!f9::Run "ahk_exe Cider.exe"
+!f10::Media_Prev
+!f11::Media_Play_Pause
+!f12::Media_Next

@@ -6,7 +6,8 @@ return {
       ensure_installed = {
         "lua_ls",
         "omnisharp",
-        "fsautocomplete"
+        "fsautocomplete",
+        "sqls"
       },
       inlay_hints = { enabled = true }
     },
@@ -28,6 +29,10 @@ return {
   },
   {
     "ionide/Ionide-vim",
+  },
+  {
+    "nanotee/sqls.nvim",
+    lazy = false
   },
   {
     "neovim/nvim-lspconfig",
@@ -91,6 +96,14 @@ return {
           local primary = require("lspconfig.util").root_pattern("*.sln")(fname)
           local fallback = require("lspconfig.util").root_pattern("*.csproj")(fname)
           return primary or fallback
+        end,
+      })
+      lspconfig.sqls.setup({
+        capabilities = capabilities,
+        on_attach = function(client, bufnr)
+          require("sqls").on_attach(client, bufnr)
+          keymap({"n", "v"}, "<leader>rq", "<cmd>SqlsExecuteQuery<CR>", bufnr, "[R]un Query")
+          keymap("n", "<leader>sd", "<cmd>SqlsSwitchDatabase<CR>", bufnr, "[S]witch Database")
         end,
       })
 

@@ -1,8 +1,5 @@
 ; This should work with AutoHotkey v2
 
-; Alt+Enter to launch wezterm
-!Enter::Run "wezterm-gui"
-
 ; Alt+b to launch or activate Chrome (always on workspace 2)
 !b::
 {
@@ -11,15 +8,15 @@
     Sleep 300  ; Wait for workspace switch to complete
     
     ; Now check if Chrome exists in this workspace
-    if WinExist("ahk_exe chrome.exe")
+    if WinExist("ahk_exe zen.exe")
     {
         ; Chrome exists, activate it
-        WinActivate "ahk_exe chrome.exe"
+        WinActivate "ahk_exe zen.exe"
     }
     else
     {
         ; Chrome doesn't exist in workspace 2, launch a new instance
-        Run "chrome"
+        Run "zen"
     }
 }
 
@@ -47,7 +44,7 @@
 ; Win+Shift+T MS Teams
 #+t::
 {
-    Send "!1"  ; Alt+2 to switch to workspace 2
+    Send "!4"  ; Alt+4 to switch to workspace 4
     Sleep 300  ; Wait for workspace switch to complete
     
     if WinExist("ahk_exe ms-teams.exe")

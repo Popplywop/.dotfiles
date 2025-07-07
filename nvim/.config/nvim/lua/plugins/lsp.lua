@@ -5,7 +5,6 @@ return {
       automatic_enable = false,
       ensure_installed = {
         "lua_ls",
-        "omnisharp",
         "fsautocomplete",
         "sqls"
       },
@@ -25,9 +24,6 @@ return {
     "folke/lazydev.nvim", opts = {}
   },
   {
-    "Hoffs/omnisharp-extended-lsp.nvim",
-  },
-  {
     "ionide/Ionide-vim",
   },
   {
@@ -39,15 +35,6 @@ return {
     event = { "BufReadPre", "BufnewFile" },
     config = function()
       local lspconfig = require("lspconfig")
-      local omnisharp_path = nil
-
-      if (vim.fn.has('win32')) then
-        omnisharp_path = vim.fn.expand("$HOME/.config/omnisharp/OmniSharp.dll")
-      end
-
-      if (vim.fn.has('unix')) then
-        omnisharp_path = vim.fn.expand("~/.local/share/nvim/mason/packages/omnisharp/libexec/OmniSharp.dll")
-      end
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       local keymap = function(mode, key, action, bufnr, desc)
@@ -67,36 +54,6 @@ return {
             hint = { enable = true }
           }
         }
-      })
-      lspconfig.omnisharp.setup({
-        cmd = { "dotnet", omnisharp_path },
-        on_attach = function(client, bufnr)
-          local omnisharp_extended = require("omnisharp_extended")
-          keymap("n", "<leader>ogd", function() omnisharp_extended.lsp_definition() end, bufnr,
-            "[O]mnisharp Go To Definition")
-          keymap("n", "<leader>ogD", function() omnisharp_extended.lsp_type_definition() end, bufnr,
-            "[O]mnisharp Go To Type Definition")
-          keymap("n", "<leader>ogr", function() omnisharp_extended.lsp_references() end, bufnr,
-            "[O]mnisharp Go To References")
-          keymap("n", "<leader>ogi", function() omnisharp_extended.lsp_implementation() end, bufnr,
-            "[O]mnisharp Go To Implementations")
-
-          vim.api.nvim_create_autocmd("InsertLeave", {
-            buffer = bufnr,
-            command = "w"
-          })
-
-          vim.opt.tabstop = 4
-          vim.opt.shiftwidth = 4
-          vim.opt.shiftround = true
-          vim.opt.expandtab = true
-        end,
-        capabilities = capabilities,
-        root_dir = function(fname)
-          local primary = require("lspconfig.util").root_pattern("*.sln")(fname)
-          local fallback = require("lspconfig.util").root_pattern("*.csproj")(fname)
-          return primary or fallback
-        end,
       })
       lspconfig.sqls.setup({
         capabilities = capabilities,

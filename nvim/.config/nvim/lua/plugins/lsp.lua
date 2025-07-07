@@ -42,7 +42,7 @@ return {
       local omnisharp_path = nil
 
       if (vim.fn.has('win32')) then
-        omnisharp_path = vim.fn.expand("$HOME/.config/Omnisharp/OmniSharp.dll")
+        omnisharp_path = vim.fn.expand("$HOME/.config/omnisharp/OmniSharp.dll")
       end
 
       if (vim.fn.has('unix')) then

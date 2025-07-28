@@ -6,33 +6,38 @@ return {
       ensure_installed = {
         "lua_ls",
         "fsautocomplete",
-        "sqls"
+        "sqls",
       },
-      inlay_hints = { enabled = true }
+      inlay_hints = { enabled = true },
     },
     dependencies = {
       {
         "mason-org/mason.nvim",
         cmd = "Mason",
         opts = {
-          PATH = "prepend"
+          PATH = "prepend",
+          registries = {
+            "github:mason-org/mason-registry",
+            "github:Crashdummyy/mason-registry", -- Add custom registry for Roslyn
+          },
         },
       },
     },
   },
   {
-    "folke/lazydev.nvim", opts = {}
+    "folke/lazydev.nvim",
+    opts = {},
   },
   {
     "ionide/Ionide-vim",
   },
   {
     "nanotee/sqls.nvim",
-    lazy = false
+    lazy = false,
   },
   {
     "neovim/nvim-lspconfig",
-    event = { "BufReadPre", "BufnewFile" },
+    event = { "BufReadPre", "BufNewFile" },
     config = function()
       local lspconfig = require("lspconfig")
 
@@ -41,8 +46,9 @@ return {
         vim.keymap.set(mode, key, action, { buffer = bufnr, remap = false, desc = desc })
       end
 
-      capabilities = vim.tbl_deep_extend('force', capabilities, require("cmp_nvim_lsp").default_capabilities())
+      capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
+      -- Existing Lua LSP configuration
       lspconfig.lua_ls.setup({
         capabilities = capabilities,
         settings = {
@@ -50,20 +56,23 @@ return {
             diagnostics = {
               globals = { "vim", "require", "nnoremap", "love" },
             },
-            telemetry = { enable = false, },
-            hint = { enable = true }
-          }
-        }
+            telemetry = { enable = false },
+            hint = { enable = true },
+          },
+        },
       })
+
+      -- Existing SQLs LSP configuration
       lspconfig.sqls.setup({
         capabilities = capabilities,
         on_attach = function(client, bufnr)
           require("sqls").on_attach(client, bufnr)
-          keymap({"n", "v"}, "<leader>rq", "<cmd>SqlsExecuteQuery<CR>", bufnr, "[R]un Query")
+          keymap({ "n", "v" }, "<leader>rq", "<cmd>SqlsExecuteQuery<CR>", bufnr, "[R]un Query")
           keymap("n", "<leader>sd", "<cmd>SqlsSwitchDatabase<CR>", bufnr, "[S]witch Database")
         end,
       })
 
+      -- Range formatting function
       local RangeFormat = function()
         local start_row, _ = unpack(vim.api.nvim_buf_get_mark(0, "<"))
         local end_row, _ = unpack(vim.api.nvim_buf_get_mark(0, ">"))
@@ -76,12 +85,10 @@ return {
         })
       end
 
-      -- Use LspAttach autocommand to only map the following keys
-      -- after the language server attaches to the current buffer
+      -- Global LspAttach autocommand
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("UserLspConfig", {}),
         callback = function(ev)
-          -- Enable completion triggered by <c-x><c-o>
           vim.bo[ev.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
 
           local keymap = function(mode, key, action, desc)
@@ -92,8 +99,8 @@ return {
           keymap("n", "gD", vim.lsp.buf.declaration, "go to declaration (LSP)")
           keymap("n", "gr", vim.lsp.buf.references, "go to [r]eferences (LSP)")
           keymap("n", "gi", vim.lsp.buf.implementation, "goto implementation (LSP)")
-          keymap("n", "gK", vim.lsp.buf.hover, "show info (LSP)")     -- K is now default for show_info
-          keymap("n", "R", vim.lsp.buf.rename, "rename symbol (LSP)") -- default is <F2>
+          keymap("n", "gK", vim.lsp.buf.hover, "show info (LSP)")
+          keymap("n", "R", vim.lsp.buf.rename, "rename symbol (LSP)")
           keymap("n", "g=", vim.lsp.buf.format, "reformat (LSP)")
           keymap("v", "g=", RangeFormat, "reformat (LSP)")
           keymap("n", "gl", vim.lsp.diagnostic.get_line_diagnostics, "line diagnostic (LSP)")
@@ -110,5 +117,5 @@ return {
         end,
       })
     end,
-  }
+  },
 }

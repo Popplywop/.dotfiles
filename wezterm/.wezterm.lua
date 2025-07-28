@@ -1,6 +1,8 @@
 local wezterm = require 'wezterm';
 local act = wezterm.action
 local config = {}
+local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
+local history = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer-history"
 
 local is_windows = function()
   return wezterm.target_triple:find("windows") ~= nil
@@ -41,6 +43,21 @@ config.colors = {
   }
 }
 
+local schema = {
+  options = { callback = history.Wrapper(sessionizer.DefaultCallback) },
+  sessionizer.DefaultWorkspace {},
+  history.MostRecentWorkspace {},
+
+  wezterm.home_dir .. "/dev",
+  wezterm.home_dir .. "/.dotfiles",
+
+  sessionizer.FdSearch(wezterm.home_dir .. "/dev"),
+
+  processing = sessionizer.for_each_entry(function(entry)
+    entry.label = entry.label:gsub(wezterm.home_dir, "~")
+  end)
+}
+
 config.front_end = 'OpenGL'
 
 config.font_size = 11.5
@@ -73,5 +90,17 @@ config.keys = {
     action = act.ReloadConfiguration
   },
 }
+
+table.insert(config.keys, {
+    key = "s",
+    mods = "ALT",
+    action = sessionizer.show(schema)
+})
+
+table.insert(config.keys, {
+    key = "m",
+    mods = "ALT",
+    action = history.switch_to_most_recent_workspace
+})
 
 return config

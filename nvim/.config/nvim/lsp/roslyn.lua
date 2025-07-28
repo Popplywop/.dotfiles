@@ -1,0 +1,48 @@
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+local keymap = function(mode, key, action, bufnr, desc)
+  vim.keymap.set(mode, key, action, { buffer = bufnr, remap = false, desc = desc })
+end
+
+capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+
+-- Roslyn LSP configuration
+local roslyn_dll_path = vim.fn.stdpath("data") .. "/mason/packages/roslyn/libexec/Microsoft.CodeAnalysis.LanguageServer.dll"
+if vim.fn.filereadable(roslyn_dll_path) == 0 then
+  print("Error: Roslyn DLL not found at " .. roslyn_dll_path)
+  return
+end
+
+vim.lsp.config("roslyn", {
+  cmd = {
+    "dotnet",
+    roslyn_dll_path,
+    "--logLevel=Information",
+    "--extensionLogDirectory=" .. vim.fs.dirname(vim.lsp.get_log_path()),
+    "--stdio",
+  },
+  root_dir = vim.fs.dirname(vim.fs.find({ ".sln" }, { upward = true })[1]) or vim.fn.getcwd(),
+  filetypes = { "cs" },
+  capabilities = capabilities,
+  on_attach = function(client, bufnr)
+    local opts = { buffer = bufnr, noremap = true, silent = true }
+    keymap("n", "gd", vim.lsp.buf.definition, bufnr, "go to definition (LSP)")
+    keymap("n", "K", vim.lsp.buf.hover, bufnr, "show info (LSP)")
+    keymap("n", "<leader>ca", vim.lsp.buf.code_action, bufnr, "code action (LSP)")
+    keymap("n", "<leader>rn", vim.lsp.buf.rename, bufnr, "rename symbol (LSP)")
+    print("Roslyn LSP attached!")
+  end,
+  settings = {
+    ["csharp|inlay_hints"] = {
+      csharp_enable_inlay_hints_for_implicit_object_creation = true,
+      csharp_enable_inlay_hints_for_implicit_variable_types = true,
+    },
+    ["csharp|code_lens"] = {
+      dotnet_enable_references_code_lens = true,
+    },
+    ["csharp|completion"] = {
+      dotnet_provide_regex_completions = true,
+      dotnet_show_completion_items_from_unimported_namespaces = true,
+      dotnet_show_name_completion_suggestions = true,
+    },
+  },
+})

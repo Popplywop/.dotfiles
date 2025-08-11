@@ -4,4 +4,7 @@ else
   require('config.options')
   require('config.lazy')
   require('config.keymaps')
+  require('config.autocommands')
+
+  vim.lsp.enable({ 'luals', 'rosyln' })
 end

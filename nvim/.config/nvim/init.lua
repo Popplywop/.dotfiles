@@ -5,6 +5,7 @@ else
   require('config.lazy')
   require('config.keymaps')
   require('config.autocommands')
+  require('config.diagnostics')
 
   vim.lsp.enable({ 'luals', 'rosyln' })
 end

@@ -7,7 +7,7 @@ capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp"
 
 -- Roslyn LSP configuration
 local roslyn_dll_path = vim.fn.stdpath("data") ..
-    "/mason/packages/roslyn/libexec/Microsoft.CodeAnalysis.LanguageServer.dll"
+    "/Microsoft.CodeAnalysis.LanguageServer/content/LanguageServer/linux-x64/Microsoft.CodeAnalysis.LanguageServer.dll"
 if vim.fn.filereadable(roslyn_dll_path) == 0 then
   print("Error: Roslyn DLL not found at " .. roslyn_dll_path)
   return
@@ -19,7 +19,7 @@ vim.lsp.config("roslyn", {
     roslyn_dll_path,
     "--logLevel=Information",
     "--extensionLogDirectory=" .. vim.fs.dirname(vim.lsp.get_log_path()),
-    "--stdio",
+    "--stdio"
   },
   root_dir = vim.fs.dirname(vim.fs.find({ ".sln" }, { upward = true })[1]) or vim.fn.getcwd(),
   filetypes = { "cs" },
@@ -33,21 +33,12 @@ vim.lsp.config("roslyn", {
 
     vim.opt.tabstop = 4
     vim.opt.shiftwidth = 4
-
-    -- Set up autocommands for updating diagnostics
-    local group = vim.api.nvim_create_augroup("RoslynDiagnostics", { clear = true })
-    vim.api.nvim_create_autocmd({"BufWritePost", "ModeChanged"}, {
-      group = group,
-      buffer = bufnr,
-      callback = function()
-        -- Refresh diagnostics
-        vim.diagnostic.setloclist({ open = false }) -- Update location list without opening it
-        vim.diagnostic.show(nil, bufnr) -- Show diagnostics in the buffer (e.g., virtual text, signs)
-      end,
-      desc = "Update LSP diagnostics on save or entering normal mode",
-    })
   end,
   settings = {
+    ["csharp|background_analysis"] = {
+      dotnet_analyzer_diagnostics_scope = fullSolution,
+      dotnet_compiler_diagnostics_scope = fullSolution
+    },
     ["csharp|inlay_hints"] = {
       csharp_enable_inlay_hints_for_implicit_object_creation = true,
       csharp_enable_inlay_hints_for_implicit_variable_types = true,

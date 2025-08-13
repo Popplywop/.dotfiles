@@ -1,7 +1,4 @@
 local capabilities = vim.lsp.protocol.make_client_capabilities()
-local keymap = function(mode, key, action, bufnr, desc)
-  vim.keymap.set(mode, key, action, { buffer = bufnr, remap = false, desc = desc })
-end
 
 capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
@@ -26,11 +23,6 @@ vim.lsp.config("roslyn", {
   capabilities = capabilities,
   on_attach = function(client, bufnr)
     local opts = { buffer = bufnr, noremap = true, silent = true }
-    keymap("n", "gd", vim.lsp.buf.definition, bufnr, "go to definition (LSP)")
-    keymap("n", "K", vim.lsp.buf.hover, bufnr, "show info (LSP)")
-    keymap("n", "<leader>ca", vim.lsp.buf.code_action, bufnr, "code action (LSP)")
-    keymap("n", "<leader>rn", vim.lsp.buf.rename, bufnr, "rename symbol (LSP)")
-
     vim.opt.tabstop = 4
     vim.opt.shiftwidth = 4
   end,

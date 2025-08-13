@@ -29,16 +29,17 @@ vim.api.nvim_create_autocmd("LspAttach", {
     keymap("n", "R", vim.lsp.buf.rename, "rename symbol (LSP)")
     keymap("n", "g=", vim.lsp.buf.format, "reformat (LSP)")
     keymap("v", "g=", RangeFormat, "reformat (LSP)")
-    keymap("n", "gl", vim.lsp.diagnostic.get_line_diagnostics, "line diagnostic (LSP)")
     keymap("n", "<C-k>", vim.lsp.buf.signature_help, "signature help (LSP)")
-    keymap("n", "<space>wa", vim.lsp.buf.add_workspace_folder, "add workspace folder (LSP)")
-    keymap("n", "<space>wr", vim.lsp.buf.remove_workspace_folder, "remove workspace folder (LSP)")
-    keymap("n", "<space>wl", function()
-      print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-    end, "(LSP) list workspace folders")
     keymap("n", "<space>D", vim.lsp.buf.type_definition, "type definition (LSP)")
     keymap({ "n", "v" }, "<space>ca", function()
       vim.lsp.buf.code_action({ apply = true })
     end, "code action (LSP)")
   end,
+})
+
+vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave", "BufWritePost" }, {
+  group = vim.api.nvim_create_augroup("CodeLensesRefresh", {}),
+  callback = function()
+    local _, _ = pcall(vim.lsp.codelens.refresh)
+  end
 })

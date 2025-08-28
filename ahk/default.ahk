@@ -12,6 +12,7 @@ SetControlDelay -1
 
 #Include "C:\Sandboxes\VD.ahk\VD.ah2"
 
+VD.animation_on:=false
 
 ; Alt+b to launch or activate Chrome (always on workspace 2)
 !b::

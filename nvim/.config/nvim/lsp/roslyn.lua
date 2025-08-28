@@ -2,18 +2,26 @@ local capabilities = vim.lsp.protocol.make_client_capabilities()
 
 capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
+local base_dll_path = vim.fn.stdpath("data") .. "/Microsoft.CodeAnalysis.LanguageServer/content/LanguageServer/"
+local dll_path
+local os_name = vim.loop.os_uname().sysname
+
+if os_name == "Windows_NT" then
+  dll_path = base_dll_path .. "win-x64/Microsoft.CodeAnalysis.LanguageServer.dll"
+else
+  dll_path = base_dll_path .. "linux-x64/Microsoft.CodeAnalysis.LanguageServer.dll"
+end
+
 -- Roslyn LSP configuration
-local roslyn_dll_path = vim.fn.stdpath("data") ..
-    "/Microsoft.CodeAnalysis.LanguageServer/content/LanguageServer/linux-x64/Microsoft.CodeAnalysis.LanguageServer.dll"
-if vim.fn.filereadable(roslyn_dll_path) == 0 then
-  print("Error: Roslyn DLL not found at " .. roslyn_dll_path)
+if vim.fn.filereadable(dll_path) == 0 then
+  print("Error: Roslyn DLL not found at " .. dll_path)
   return
 end
 
 vim.lsp.config("roslyn", {
   cmd = {
     "dotnet",
-    roslyn_dll_path,
+    dll_path,
     "--logLevel=Information",
     "--extensionLogDirectory=" .. vim.fs.dirname(vim.lsp.get_log_path()),
     "--stdio"

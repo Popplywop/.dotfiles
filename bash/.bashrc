@@ -146,8 +146,6 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-. "$HOME/.cargo/env"
-
 if [ -z "$SSH_AUTH_SOCK" ]; then
     eval "$(ssh-agent -s)"
 fi

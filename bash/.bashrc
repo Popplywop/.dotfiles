@@ -119,6 +119,19 @@ fi
 export DOTNET_ROOT=$HOME/.dotnet
 export PATH="$HOME/zig/zig-linux-x86_64-0.13.0:$HOME/ghostty:$HOME/.local/bin:$PATH:/opt/nvim-linux-x86_64/bin:$DOTNET_ROOT:$DOTNET_ROOT/tools:/usr/local/go/bin"
 
+# fnm
+FNM_PATH="/home/popple/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "`fnm env`"
+fi
+
+#mssql_tools
+MSSQLTOOLS_PATH="/opt/mssql-tools18/bin"
+if [ -d "$MSSQLTOOLS_PATH" ]; then
+  export PATH="$MSSQLTOOLS_PATH:$PATH"
+fi
+
 eval "$(oh-my-posh init bash --config $HOME/.cache/oh-my-posh/themes/catppuccin_mocha.omp.json)"
 
 export NVM_DIR="$HOME/.nvm"
@@ -132,4 +145,15 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
 . "$HOME/.cargo/env"
+
+if [ -z "$SSH_AUTH_SOCK" ]; then
+    eval "$(ssh-agent -s)"
+fi
+
+ssh-add -l > /dev/null 2>&1
+
+if [ $? -ne 0 ]; then
+    ssh-add ~/.ssh/id_rsa 
+fi

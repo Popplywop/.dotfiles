@@ -155,3 +155,10 @@ ssh-add -l > /dev/null 2>&1
 if [ $? -ne 0 ]; then
     ssh-add ~/.ssh/id_rsa 
 fi
+
+# Claude Code AWS Bedrock configuration
+export CLAUDE_CODE_USE_BEDROCK=1
+export AWS_REGION=us-east-1
+export AWS_PROFILE="pdi-bedrock"
+# Uncomment the line below if you need to use a specific model
+# export ANTHROPIC_MODEL='us.anthropic.claude-3-7-sonnet-20240307-v1:0'

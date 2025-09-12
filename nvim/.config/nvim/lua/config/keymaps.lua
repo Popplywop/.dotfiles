@@ -26,3 +26,5 @@ vim.keymap.set("n", "<leader>wl", "<C-w>l", { desc = "Window Right" })
 vim.keymap.set('n', '<leader>H', function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end, { desc = 'Show inlay hints' })
+
+vim.keymap.set({ 'n', 't' }, '<leader>cc', '<cmd>ClaudeCode<CR>', { desc = 'Toggle Claude Code' })

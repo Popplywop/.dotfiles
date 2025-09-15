@@ -23,7 +23,7 @@ vim.lsp.config("roslyn", {
     "dotnet",
     dll_path,
     "--logLevel=Information",
-    "--extensionLogDirectory=" .. vim.fs.dirname(vim.lsp.get_log_path()),
+    "--extensionLogDirectory=" .. vim.fs.dirname(vim.lsp.log.get_filename()),
     "--stdio"
   },
   root_dir = vim.fs.dirname(vim.fs.find({ ".sln" }, { upward = true })[1]) or vim.fn.getcwd(),

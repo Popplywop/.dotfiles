@@ -7,5 +7,9 @@ else
   require('config.autocommands')
   require('config.diagnostics')
 
-  vim.lsp.enable({ 'luals', 'rosyln' })
+  vim.lsp.enable({
+    'luals',
+    'roslyn',
+    'typescript',
+  })
 end

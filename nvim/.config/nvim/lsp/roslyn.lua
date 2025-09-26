@@ -18,7 +18,7 @@ if vim.fn.filereadable(dll_path) == 0 then
   return
 end
 
-vim.lsp.config("roslyn", {
+return {
   cmd = {
     "dotnet",
     dll_path,
@@ -52,4 +52,4 @@ vim.lsp.config("roslyn", {
       dotnet_show_name_completion_suggestions = true,
     },
   },
-})
+}

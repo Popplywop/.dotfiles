@@ -22,9 +22,11 @@ vim.keymap.set("n", "<leader>wk", "<C-w>k", { desc = "Window Up" })
 vim.keymap.set("n", "<leader>wh", "<C-w>h", { desc = "Window Left" })
 vim.keymap.set("n", "<leader>wl", "<C-w>l", { desc = "Window Right" })
 
+-- Floaterm
+vim.keymap.set({ "n", "t" }, "<Esc><Esc>", "<Cmd>FloatermToggle<CR>", { desc = "Toggle Floaterm" })
+vim.keymap.set("n", "<leader>tg", "<Cmd>FloatermNew lazygit<CR>", { desc = "Launch lazygit"})
+
 -- inlay hints
 vim.keymap.set('n', '<leader>H', function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end, { desc = 'Show inlay hints' })
-
-vim.keymap.set({ 'n', 't' }, '<leader>cc', '<cmd>ClaudeCode<CR>', { desc = 'Toggle Claude Code' })

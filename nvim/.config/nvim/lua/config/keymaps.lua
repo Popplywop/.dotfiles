@@ -24,6 +24,7 @@ vim.keymap.set("n", "<leader>wl", "<C-w>l", { desc = "Window Right" })
 
 -- Floaterm
 vim.keymap.set({ "n", "t" }, "<Esc><Esc>", "<Cmd>FloatermToggle<CR>", { desc = "Toggle Floaterm" })
+vim.keymap.set({ "n", "t" }, "<Esc>l", "<Cmd>FloatermNext<CR>", { desc = "Next Terminal" })
 vim.keymap.set("n", "<leader>tg", "<Cmd>FloatermNew lazygit<CR>", { desc = "Launch lazygit"})
 
 -- inlay hints

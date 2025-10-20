@@ -4,7 +4,7 @@ capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp"
 
 return {
   cmd = { 'html-languageserver', '--stdio' },
-  filetypes = { 'html' },
+  filetypes = { 'html', 'javascript', 'typescript' },
   capabilities = capabilities,
   root_markers = { '.git' },
   on_attach = function(client, bufnr)

@@ -4,7 +4,7 @@ capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp"
 
 return {
   cmd = { 'css-languageserver', '--stdio' },
-  filetypes = { 'css', 'scss', 'less' },
+  filetypes = { 'css', 'scss', 'less', 'html' },
   capabilities = capabilities,
   root_markers = { '.git' },
   on_attach = function(client, bufnr)

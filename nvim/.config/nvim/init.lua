@@ -11,5 +11,7 @@ else
     'luals',
     'roslyn',
     'typescript',
+    'html',
+    'css'
   })
 end

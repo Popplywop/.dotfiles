@@ -8,8 +8,15 @@ local is_windows = function()
   return wezterm.target_triple:find("windows") ~= nil
 end
 
+config.wsl_domains = {
+  {
+    name = 'WSL:Ubuntu',
+    distribution = 'Ubuntu'
+  }
+}
+
 if is_windows() then
-  config.default_prog = { 'pwsh.exe' }
+  config.default_domain = 'WSL:Ubuntu'
 else
   config.default_prog = { 'bash' }
   config.enable_wayland = false

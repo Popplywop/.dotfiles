@@ -1,5 +1,6 @@
 local wezterm = require 'wezterm';
 local act = wezterm.action
+local mux = wezterm.mux
 local config = {}
 local workspace_switcher = wezterm.plugin.require("https://github.com/MLFlexer/smart_workspace_switcher.wezterm")
 
@@ -37,6 +38,27 @@ wezterm.on("update-right-status", function(window, pane)
 end)
 workspace_switcher.zoxide_path = '/home/popple/.local/bin/zoxide'
 config.default_workspace = '~'
+
+wezterm.on('gui-startup', function(cmd)
+  local args = {}
+  if cmd then
+    args = cmd.args
+  end
+
+  local repos = wezterm.home_dir .. '/dev'
+  local tab, build_pane, window = mux.spawn_window {
+    workspace = 'code',
+    cwd = repos,
+    args = args
+  }
+
+  local tab, build_pane, window = mux.spawn_window {
+    workspace = 'home',
+    cwd = wezterm.home_dir,
+  }
+
+  mux.set_active_workspace = 'home'
+end)
 
 config.colors = {
   tab_bar = {

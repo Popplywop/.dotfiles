@@ -1,8 +1,7 @@
 local wezterm = require 'wezterm';
 local act = wezterm.action
 local config = {}
-local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
-local history = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer-history"
+local workspace_switcher = wezterm.plugin.require("https://github.com/MLFlexer/smart_workspace_switcher.wezterm")
 
 local is_windows = function()
   return wezterm.target_triple:find("windows") ~= nil
@@ -32,6 +31,10 @@ config.default_cursor_style = 'SteadyBar'
 
 config.color_scheme = 'Catppuccin Macchiato'
 
+-- workspace switcher setup
+workspace_switcher.zoxide_path = '/home/popple/.local/bin/zoxide'
+config.default_workspace = '~'
+
 config.colors = {
   tab_bar = {
     background = '#24273a',
@@ -48,21 +51,6 @@ config.colors = {
       fg_color = '#a6da95',
     }
   }
-}
-
-local schema = {
-  options = { callback = history.Wrapper(sessionizer.DefaultCallback) },
-  sessionizer.DefaultWorkspace {},
-  history.MostRecentWorkspace {},
-
-  wezterm.home_dir .. "/dev",
-  wezterm.home_dir .. "/.dotfiles",
-
-  sessionizer.FdSearch(wezterm.home_dir .. "/dev"),
-
-  processing = sessionizer.for_each_entry(function(entry)
-    entry.label = entry.label:gsub(wezterm.home_dir, "~")
-  end)
 }
 
 config.front_end = 'OpenGL'
@@ -93,21 +81,19 @@ config.keys = {
   },
   {
     key = "r",
-    mods = "LEADER",
+    mods = "CTRL|SHIFT",
     action = act.ReloadConfiguration
   },
+  {
+    key = 's',
+    mods = 'CTRL|SHIFT',
+    action = workspace_switcher.switch_workspace(),
+  },
+  {
+    key = 'b',
+    mods = 'CTRL|SHIFT',
+    action = workspace_switcher.switch_to_prev_workspace(),
+  }
 }
-
-table.insert(config.keys, {
-    key = "s",
-    mods = "ALT",
-    action = sessionizer.show(schema)
-})
-
-table.insert(config.keys, {
-    key = "m",
-    mods = "ALT",
-    action = history.switch_to_most_recent_workspace
-})
 
 return config

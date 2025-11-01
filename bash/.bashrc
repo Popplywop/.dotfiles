@@ -146,16 +146,6 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-if [ -z "$SSH_AUTH_SOCK" ]; then
-    eval "$(ssh-agent -s)"
-fi
-
-ssh-add -l > /dev/null 2>&1
-
-if [ $? -ne 0 ]; then
-    ssh-add ~/.ssh/id_rsa 
-fi
-
 # Claude Code AWS Bedrock configuration
 export CLAUDE_CODE_USE_BEDROCK=1
 export AWS_REGION=us-east-1

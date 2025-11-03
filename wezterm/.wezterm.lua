@@ -37,6 +37,7 @@ wezterm.on("update-right-status", function(window, pane)
   window:set_right_status(window:active_workspace())
 end)
 workspace_switcher.zoxide_path = '/home/popple/.local/bin/zoxide'
+
 config.default_workspace = '~'
 
 config.colors = {

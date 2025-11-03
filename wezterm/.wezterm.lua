@@ -30,7 +30,7 @@ config.tab_bar_at_bottom = true
 config.adjust_window_size_when_changing_font_size = false
 config.default_cursor_style = 'SteadyBar'
 
-config.color_scheme = 'Catppuccin Macchiato'
+config.color_scheme = 'Campbell (Gogh)'
 
 -- workspace switcher setup
 wezterm.on("update-right-status", function(window, pane)
@@ -42,17 +42,17 @@ config.default_workspace = '~'
 
 config.colors = {
   tab_bar = {
-    background = '#24273a',
+    background = '#0C0C0C',
     active_tab = {
-      bg_color = '#24273a',
+      bg_color = '#0C0C0C',
       fg_color = '#a6da95',
     },
     inactive_tab = {
-      bg_color = '#24273a',
+      bg_color = '#0C0C0C',
       fg_color = '#cad3f5',
     },
     new_tab = {
-      bg_color = '#24273a',
+      bg_color = '#0C0C0C',
       fg_color = '#a6da95',
     }
   }

@@ -18,7 +18,7 @@ if vim.fn.filereadable(dll_path) == 0 then
   return
 end
 
-return {
+vim.lsp.config("roslyn", {
   cmd = {
     "dotnet",
     dll_path,
@@ -26,18 +26,17 @@ return {
     "--extensionLogDirectory=" .. vim.fs.dirname(vim.lsp.log.get_filename()),
     "--stdio"
   },
-  root_dir = vim.fs.dirname(vim.fs.find({ ".sln" }, { upward = true })[1]) or vim.fn.getcwd(),
+  root_markers = { ".sln", ".git", ".csproj" },
   filetypes = { "cs" },
   capabilities = capabilities,
   on_attach = function(client, bufnr)
-    local opts = { buffer = bufnr, noremap = true, silent = true }
     vim.opt.tabstop = 4
     vim.opt.shiftwidth = 4
   end,
   settings = {
     ["csharp|background_analysis"] = {
-      dotnet_analyzer_diagnostics_scope = fullSolution,
-      dotnet_compiler_diagnostics_scope = fullSolution
+      dotnet_analyzer_diagnostics_scope = "fullSolution",
+      dotnet_compiler_diagnostics_scope = "fullSolution"
     },
     ["csharp|inlay_hints"] = {
       csharp_enable_inlay_hints_for_implicit_object_creation = true,
@@ -52,4 +51,4 @@ return {
       dotnet_show_name_completion_suggestions = true,
     },
   },
-}
+})

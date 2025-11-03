@@ -2,7 +2,7 @@ local capabilities = vim.lsp.protocol.make_client_capabilities()
 
 capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
-return {
+vim.lsp.config['luals'] = {
   -- Command and arguments to start the server.
   cmd = { 'lua-language-server' },
   -- Filetypes to automatically attach to.

@@ -1,8 +1,64 @@
 local wezterm = require 'wezterm';
 local act = wezterm.action
 local config = {}
-local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
-local history = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer-history"
+
+-- Custom project switcher
+local function project_switcher()
+  local search_paths = {
+    wezterm.home_dir .. "/dev",
+    wezterm.home_dir .. "/.dotfiles",
+  }
+
+  return act.InputSelector {
+    title = "Select Project",
+    choices = (function()
+      local choices = {}
+      for _, path in ipairs(search_paths) do
+        -- Find git directories
+        local success, stdout = wezterm.run_child_process({
+          "find",
+          path,
+          "-type", "d",
+          "-name", ".git",
+          "-maxdepth", "3"
+        })
+
+        if success then
+          for line in stdout:gmatch("[^\r\n]+") do
+            -- Get parent directory of .git folder
+            local project_path = line:match("(.+)/.git$")
+            if project_path then
+              local label = project_path:gsub(wezterm.home_dir, "~")
+              table.insert(choices, {
+                label = label,
+                id = project_path,
+              })
+            end
+          end
+        end
+      end
+
+      -- Sort choices alphabetically
+      table.sort(choices, function(a, b)
+        return a.label < b.label
+      end)
+
+      return choices
+    end)(),
+
+    action = wezterm.action_callback(function(window, pane, id, label)
+      if id then
+        -- Spawn a new tab with the selected directory
+        window:perform_action(
+          act.SpawnCommandInNewTab {
+            cwd = id,
+          },
+          pane
+        )
+      end
+    end),
+  }
+end
 
 local is_windows = function()
   return wezterm.target_triple:find("windows") ~= nil
@@ -31,21 +87,6 @@ config.adjust_window_size_when_changing_font_size = false
 config.default_cursor_style = 'SteadyBar'
 
 config.color_scheme = 'Campbell (Gogh)'
-
-local schema = {
-    options = { callback = history.Wrapper(sessionizer.DefaultCallback) },
-    sessionizer.DefaultWorkspace {},
-    history.MostRecentWorkspace {},
-
-    wezterm.home_dir .. "/dev",
-    wezterm.home_dir .. "/.dotfiles",
-
-    sessionizer.FdSearch(wezterm.home_dir .. "/dev"),
-
-    processing = sessionizer.for_each_entry(function(entry)
-        entry.label = entry.label:gsub(wezterm.home_dir, "~")
-    end)
-}
 
 config.colors = {
   tab_bar = {
@@ -99,12 +140,9 @@ config.keys = {
   {
     key = 's',
     mods = 'CTRL|SHIFT',
-    action = sessionizer.show(schema),
-  },
-  {
-    key = 'b',
-    mods = 'CTRL|SHIFT',
-    action = history.switch_to_most_recent_workspace,
+    action = wezterm.action_callback(function(window, pane)
+      window:perform_action(project_switcher(), pane)
+    end),
   },
 }
 

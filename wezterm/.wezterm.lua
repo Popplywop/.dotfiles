@@ -1,8 +1,8 @@
 local wezterm = require 'wezterm';
 local act = wezterm.action
-local mux = wezterm.mux
 local config = {}
-local workspace_switcher = wezterm.plugin.require("https://github.com/MLFlexer/smart_workspace_switcher.wezterm")
+local sessionizer = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer.wezterm"
+local history = wezterm.plugin.require "https://github.com/mikkasendke/sessionizer-history"
 
 local is_windows = function()
   return wezterm.target_triple:find("windows") ~= nil
@@ -32,13 +32,20 @@ config.default_cursor_style = 'SteadyBar'
 
 config.color_scheme = 'Campbell (Gogh)'
 
--- workspace switcher setup
-wezterm.on("update-right-status", function(window, pane)
-  window:set_right_status(window:active_workspace())
-end)
-workspace_switcher.zoxide_path = '/home/popple/.local/bin/zoxide'
+local schema = {
+    options = { callback = history.Wrapper(sessionizer.DefaultCallback) },
+    sessionizer.DefaultWorkspace {},
+    history.MostRecentWorkspace {},
 
-config.default_workspace = '~'
+    wezterm.home_dir .. "/dev",
+    wezterm.home_dir .. "/.dotfiles",
+
+    sessionizer.FdSearch(wezterm.home_dir .. "/dev"),
+
+    processing = sessionizer.for_each_entry(function(entry)
+        entry.label = entry.label:gsub(wezterm.home_dir, "~")
+    end)
+}
 
 config.colors = {
   tab_bar = {
@@ -92,13 +99,13 @@ config.keys = {
   {
     key = 's',
     mods = 'CTRL|SHIFT',
-    action = workspace_switcher.switch_workspace(),
+    action = sessionizer.show(schema),
   },
   {
     key = 'b',
     mods = 'CTRL|SHIFT',
-    action = workspace_switcher.switch_to_prev_workspace(),
-  }
+    action = history.switch_to_most_recent_workspace,
+  },
 }
 
 return config

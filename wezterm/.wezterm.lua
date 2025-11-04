@@ -108,4 +108,8 @@ config.keys = {
   },
 }
 
+wezterm.on('update-right-status', function(window, pane)
+  window:set_right_status(wezterm.strftime('%a %b %d %H:%M:%S '))
+end)
+
 return config

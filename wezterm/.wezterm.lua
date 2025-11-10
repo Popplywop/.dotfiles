@@ -77,7 +77,7 @@ else
   config.default_prog = { 'bash' }
   config.enable_wayland = false
 end
-config.font = wezterm.font('Monofur Nerd Font', { weight = 'Bold', italic = false })
+config.font = wezterm.font('JetBrainsMono Nerd Font', { weight = 'Bold', italic = false })
 
 config.enable_tab_bar = true
 config.use_fancy_tab_bar = false
@@ -108,7 +108,7 @@ config.colors = {
 
 config.front_end = 'OpenGL'
 
-config.font_size = 11.5
+config.font_size = 13
 
 config.window_decorations = 'RESIZE'
 

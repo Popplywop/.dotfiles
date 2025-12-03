@@ -48,6 +48,9 @@ local function project_switcher()
 
     action = wezterm.action_callback(function(window, pane, id, label)
       if id then
+        -- Extract project name from the path
+        local project_name = id:match("([^/]+)$")
+
         -- Spawn a new tab with the selected directory
         window:perform_action(
           act.SpawnCommandInNewTab {
@@ -55,6 +58,16 @@ local function project_switcher()
           },
           pane
         )
+
+        -- Set the tab title to the project name after a brief delay
+        if project_name then
+          wezterm.time.call_after(0.1, function()
+            local active_tab = window:active_tab()
+            if active_tab then
+              active_tab:set_title(project_name)
+            end
+          end)
+        end
       end
     end),
   }

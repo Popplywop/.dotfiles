@@ -120,7 +120,7 @@ export DOTNET_ROOT=$HOME/.dotnet
 export PATH="$HOME/zig/zig-linux-x86_64-0.13.0:$HOME/ghostty:$HOME/.local/bin:$PATH:/opt/nvim-linux-x86_64/bin:$DOTNET_ROOT:$DOTNET_ROOT/tools:/usr/local/go/bin"
 
 # fnm
-FNM_PATH="/home/popple/.local/share/fnm"
+FNM_PATH="$HOME/.local/share/fnm"
 if [ -d "$FNM_PATH" ]; then
   export PATH="$FNM_PATH:$PATH"
   eval "`fnm env`"
@@ -139,7 +139,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # pnpm
-export PNPM_HOME="/home/jpopple/.local/share/pnpm"
+export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;

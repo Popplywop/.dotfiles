@@ -453,7 +453,7 @@ main() {
             6)  install_dotnet; install_roslyn_lsp ;;
             7)  install_wezterm ;;
             8)  install_nerd_fonts ;;
-            9) stow_dotfiles ;;
+            9)  stow_dotfiles ;;
             0)  echo "Bye!"; exit 0 ;;
             *)  print_error "Invalid option" ;;
         esac

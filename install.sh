@@ -216,12 +216,19 @@ install_wezterm() {
 install_nerd_fonts() {
     print_header "Installing JetBrainsMono Nerd Font"
 
-    if ! command_exists oh-my-posh; then
-      print_warning "oh-my-posh must be installed before fonts"
-      return
+    # For Ubuntu/Debian - manual installation
+    FONT_DIR="$HOME/.local/share/fonts"
+
+    if [ -f "$FONT_DIR/JetBrainsMonoNerdFont-Regular.ttf" ]; then
+        print_warning "JetBrainsMono Nerd Font already installed"
+        return
     fi
 
-    oh-my-posh font install JetBrainsMono
+    mkdir -p "$FONT_DIR"
+    wget -q "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip" -O /tmp/JetBrainsMono.zip
+    unzip -o /tmp/JetBrainsMono.zip -d "$FONT_DIR"
+    rm /tmp/JetBrainsMono.zip
+    fc-cache -fv
 
     print_success "JetBrainsMono Nerd Font installed"
 }
@@ -268,7 +275,7 @@ show_menu() {
     echo "6)  Install .NET SDK"
     echo "7)  Install WezTerm"
     echo "8)  Install Nerd Fonts"
-    echo "10) Stow dotfiles"
+    echo "9) Stow dotfiles"
     echo "0)  Exit"
     echo ""
 }
@@ -321,8 +328,7 @@ main() {
             6)  install_dotnet ;;
             7)  install_wezterm ;;
             8)  install_nerd_fonts ;;
-            9)  install_hyprland_desktop ;;
-            10) stow_dotfiles ;;
+            9) stow_dotfiles ;;
             0)  echo "Bye!"; exit 0 ;;
             *)  print_error "Invalid option" ;;
         esac

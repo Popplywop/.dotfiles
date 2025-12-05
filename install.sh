@@ -270,7 +270,6 @@ install_dotnet() {
 install_roslyn_lsp() {
     print_header "Installing Roslyn Language Server"
 
-    ROSLYN_VERSION="4.12.0-1.24359.11"
     ROSLYN_DIR="$HOME/.local/share/nvim/Microsoft.CodeAnalysis.LanguageServer"
     DLL_PATH="$ROSLYN_DIR/content/LanguageServer/linux-x64/Microsoft.CodeAnalysis.LanguageServer.dll"
 
@@ -279,13 +278,8 @@ install_roslyn_lsp() {
         return
     fi
 
-    # Download the NuGet package
-    NUPKG_URL="https://www.nuget.org/api/v2/package/Microsoft.CodeAnalysis.LanguageServer.linux-x64/$ROSLYN_VERSION"
-
     mkdir -p "$ROSLYN_DIR"
-    curl -sSL "$NUPKG_URL" -o /tmp/roslyn.nupkg
-    unzip -o /tmp/roslyn.nupkg -d "$ROSLYN_DIR"
-    rm /tmp/roslyn.nupkg
+    unzip -o $HOME/.dotfiles/assets/*.nupkg -d "$ROSLYN_DIR"
 
     # Make the DLL executable (needed for some setups)
     chmod +x "$DLL_PATH"
@@ -353,7 +347,8 @@ stow_bash() {
 
     # Use --adopt to overwrite existing .bashrc
     if [ -d "bash" ]; then
-        stow -v --adopt bash
+        stow bash --adopt
+        source ~/.bashrc
         print_success "Bash config stowed"
     else
         print_warning "bash directory not found"

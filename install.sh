@@ -28,11 +28,6 @@ print_error() {
     echo -e "${RED}✗ $1${NC}"
 }
 
-# Detect if running in WSL
-is_wsl() {
-    grep -qEi "(Microsoft|WSL)" /proc/version 2>/dev/null
-}
-
 # Check if command exists
 command_exists() {
     command -v "$1" &> /dev/null
@@ -174,6 +169,85 @@ install_pnpm() {
 }
 
 # ============================================================================
+# vtsls (TypeScript LSP)
+# ============================================================================
+install_vtsls() {
+    print_header "Installing vtsls (TypeScript LSP)"
+
+    if command_exists vtsls; then
+        print_warning "vtsls already installed"
+        return
+    fi
+
+    # Ensure npm is available (from fnm)
+    if [ -d "$HOME/.local/share/fnm" ]; then
+        export PATH="$HOME/.local/share/fnm:$PATH"
+        eval "$(fnm env)"
+    fi
+
+    if ! command_exists npm; then
+        print_error "npm not found. Please install Node.js first (option 5)"
+        return 1
+    fi
+
+    npm install -g @vtsls/language-server
+
+    print_success "vtsls installed"
+}
+
+# ============================================================================
+# vscode-langservers-extracted (HTML/CSS/JSON LSPs)
+# ============================================================================
+install_vscode_langservers() {
+    print_header "Installing vscode-langservers-extracted (HTML/CSS/JSON LSPs)"
+
+    if command_exists html-languageserver; then
+        print_warning "vscode-langservers-extracted already installed"
+        return
+    fi
+
+    # Ensure npm is available (from fnm)
+    if [ -d "$HOME/.local/share/fnm" ]; then
+        export PATH="$HOME/.local/share/fnm:$PATH"
+        eval "$(fnm env)"
+    fi
+
+    if ! command_exists npm; then
+        print_error "npm not found. Please install Node.js first (option 5)"
+        return 1
+    fi
+
+    npm install -g vscode-langservers-extracted
+
+    print_success "vscode-langservers-extracted installed"
+}
+
+# ============================================================================
+# Lua Language Server
+# ============================================================================
+install_lua_language_server() {
+    print_header "Installing Lua Language Server"
+
+    if command_exists lua-language-server; then
+        print_warning "Lua Language Server already installed"
+        return
+    fi
+
+    LUA_LS_VERSION="3.13.5"
+    LUA_LS_DIR="$HOME/.local/share/lua-language-server"
+    LUA_LS_URL="https://github.com/LuaLS/lua-language-server/releases/download/${LUA_LS_VERSION}/lua-language-server-${LUA_LS_VERSION}-linux-x64.tar.gz"
+
+    mkdir -p "$LUA_LS_DIR"
+    curl -sSL "$LUA_LS_URL" | tar -xz -C "$LUA_LS_DIR"
+
+    # Create symlink in ~/.local/bin
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$LUA_LS_DIR/bin/lua-language-server" "$HOME/.local/bin/lua-language-server"
+
+    print_success "Lua Language Server installed"
+}
+
+# ============================================================================
 # .NET SDK
 # ============================================================================
 install_dotnet() {
@@ -188,6 +262,35 @@ install_dotnet() {
     curl -sSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel LTS --install-dir "$HOME/.dotnet"
 
     print_success ".NET SDK installed to ~/.dotnet"
+}
+
+# ============================================================================
+# Roslyn Language Server (C# LSP for Neovim)
+# ============================================================================
+install_roslyn_lsp() {
+    print_header "Installing Roslyn Language Server"
+
+    ROSLYN_VERSION="4.12.0-1.24359.11"
+    ROSLYN_DIR="$HOME/.local/share/nvim/Microsoft.CodeAnalysis.LanguageServer"
+    DLL_PATH="$ROSLYN_DIR/content/LanguageServer/linux-x64/Microsoft.CodeAnalysis.LanguageServer.dll"
+
+    if [ -f "$DLL_PATH" ]; then
+        print_warning "Roslyn Language Server already installed"
+        return
+    fi
+
+    # Download the NuGet package
+    NUPKG_URL="https://www.nuget.org/api/v2/package/Microsoft.CodeAnalysis.LanguageServer.linux-x64/$ROSLYN_VERSION"
+
+    mkdir -p "$ROSLYN_DIR"
+    curl -sSL "$NUPKG_URL" -o /tmp/roslyn.nupkg
+    unzip -o /tmp/roslyn.nupkg -d "$ROSLYN_DIR"
+    rm /tmp/roslyn.nupkg
+
+    # Make the DLL executable (needed for some setups)
+    chmod +x "$DLL_PATH"
+
+    print_success "Roslyn Language Server installed"
 }
 
 # ============================================================================
@@ -216,7 +319,6 @@ install_wezterm() {
 install_nerd_fonts() {
     print_header "Installing JetBrainsMono Nerd Font"
 
-    # For Ubuntu/Debian - manual installation
     FONT_DIR="$HOME/.local/share/fonts"
 
     if [ -f "$FONT_DIR/JetBrainsMonoNerdFont-Regular.ttf" ]; then
@@ -224,6 +326,14 @@ install_nerd_fonts() {
         return
     fi
 
+    # Use oh-my-posh if available
+    if command_exists oh-my-posh; then
+        oh-my-posh font install JetBrainsMono
+        print_success "JetBrainsMono Nerd Font installed via oh-my-posh"
+        return
+    fi
+
+    # Fallback to manual installation
     mkdir -p "$FONT_DIR"
     wget -q "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip" -O /tmp/JetBrainsMono.zip
     unzip -o /tmp/JetBrainsMono.zip -d "$FONT_DIR"
@@ -234,6 +344,23 @@ install_nerd_fonts() {
 }
 
 # ============================================================================
+# Stow Bash (run first to get shell config)
+# ============================================================================
+stow_bash() {
+    print_header "Stowing Bash Config"
+
+    cd "$HOME/.dotfiles"
+
+    # Use --adopt to overwrite existing .bashrc
+    if [ -d "bash" ]; then
+        stow -v --adopt bash
+        print_success "Bash config stowed"
+    else
+        print_warning "bash directory not found"
+    fi
+}
+
+# ============================================================================
 # Stow Dotfiles
 # ============================================================================
 stow_dotfiles() {
@@ -241,9 +368,8 @@ stow_dotfiles() {
 
     cd "$HOME/.dotfiles"
 
-    # List of packages to stow
+    # List of packages to stow (bash already done earlier)
     packages=(
-        "bash"
         "nvim"
         "wezterm"
         "ohmyposh"
@@ -269,10 +395,10 @@ show_menu() {
     echo ""
     echo "1)  Install ALL (recommended for fresh system)"
     echo "2)  Install Core packages only"
-    echo "3)  Install Neovim + dependencies"
+    echo "3)  Install Neovim + dependencies (lua-language-server)"
     echo "4)  Install Shell tools (oh-my-posh, zoxide)"
-    echo "5)  Install Node.js ecosystem (fnm, pnpm)"
-    echo "6)  Install .NET SDK"
+    echo "5)  Install Node.js ecosystem (fnm, pnpm, vtsls, html/css LSPs)"
+    echo "6)  Install .NET SDK + Roslyn LSP"
     echo "7)  Install WezTerm"
     echo "8)  Install Nerd Fonts"
     echo "9) Stow dotfiles"
@@ -282,16 +408,20 @@ show_menu() {
 
 install_all() {
     install_core_packages
+    stow_bash
     install_neovim
     install_nvim_deps
+    install_lua_language_server
     install_oh_my_posh
     install_zoxide
     install_fnm
     install_pnpm
+    install_vtsls
+    install_vscode_langservers
     install_dotnet
+    install_roslyn_lsp
     install_wezterm
     install_nerd_fonts
-    install_hyprland_desktop
     stow_dotfiles
 
     print_header "Installation Complete!"
@@ -322,10 +452,10 @@ main() {
         case $choice in
             1)  install_all ;;
             2)  install_core_packages ;;
-            3)  install_neovim; install_nvim_deps ;;
+            3)  install_neovim; install_nvim_deps; install_lua_language_server ;;
             4)  install_oh_my_posh; install_zoxide ;;
-            5)  install_fnm; install_pnpm ;;
-            6)  install_dotnet ;;
+            5)  install_fnm; install_pnpm; install_vtsls; install_vscode_langservers ;;
+            6)  install_dotnet; install_roslyn_lsp ;;
             7)  install_wezterm ;;
             8)  install_nerd_fonts ;;
             9) stow_dotfiles ;;

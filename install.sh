@@ -56,7 +56,6 @@ install_core_packages() {
         gettext \
         ninja-build \
         bash-completion \
-        software-properties-common \
         ca-certificates \
         gnupg
 
@@ -75,10 +74,10 @@ install_neovim() {
     fi
 
     cd ~ \
-    git clone https://github.com/neovim/neovim \
-    cd neovim \
-    make CMAKE_BUILD_TYPE=RelWithDebInfo \
-    sudo make install
+    && git clone https://github.com/neovim/neovim \
+    && cd neovim \
+    && make CMAKE_BUILD_TYPE=RelWithDebInfo \
+    && sudo make install
 
     print_success "Neovim installed to /usr/local"
 }

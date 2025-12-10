@@ -137,7 +137,7 @@ config.colors = {
   }
 }
 
-config.front_end = 'Software'
+config.front_end = 'OpenGL'
 
 config.font_size = 13
 

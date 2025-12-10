@@ -129,11 +129,6 @@ config.leader = { key = 'a', mods = 'CTRL' }
 
 config.keys = {
   {
-    key = 'w',
-    mods = 'LEADER',
-    action = act.CloseCurrentTab { confirm = true }
-  },
-  {
     key = 'E',
     mods = 'CTRL|SHIFT',
     action = act.PromptInputLine {

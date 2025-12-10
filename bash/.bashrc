@@ -132,7 +132,7 @@ if [ -d "$MSSQLTOOLS_PATH" ]; then
   export PATH="$MSSQLTOOLS_PATH:$PATH"
 fi
 
-eval "$(oh-my-posh init bash --config $HOME/.cache/oh-my-posh/themes/catppuccin_mocha.omp.json)"
+eval "$(oh-my-posh init bash --config $HOME/.dotfiles/ohmyposh/gruvbox-dark.omp.json)"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -154,3 +154,4 @@ export AWS_PROFILE="pdi-bedrock"
 # export ANTHROPIC_MODEL='us.anthropic.claude-3-7-sonnet-20240307-v1:0'
 
 eval "$(zoxide init bash)"
+export PATH="$HOME/.local/bin/statusbar:$PATH"

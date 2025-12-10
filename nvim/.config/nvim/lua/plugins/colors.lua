@@ -1,20 +1,14 @@
 return {
   {
-    "catppuccin/nvim",
-    name = "catppuccin",
+    "ellisonleao/gruvbox.nvim",
     priority = 1000,
     init = function()
       vim.opt.background = "dark"
-      vim.cmd.colorscheme("catppuccin")
+      vim.cmd.colorscheme("gruvbox")
     end,
     opts = {
-      flavor = "auto",
-      background = {
-        light = "latte",
-        dark = "macchiato"
-      },
-      transparent_background = true,
-      default_integrations = true,
+      transparent_mode = true,
+      contrast = "hard",
       integrations = {
         which_key = true,
       }

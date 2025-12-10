@@ -99,27 +99,45 @@ config.tab_bar_at_bottom = true
 config.adjust_window_size_when_changing_font_size = false
 config.default_cursor_style = 'SteadyBar'
 
-config.color_scheme = 'Campbell (Gogh)'
+config.color_scheme = 'Gruvbox Dark (Gogh)'
+
+-- Gruvbox colors with alpha channel for transparency support
+local gruvbox = {
+  bg = 'rgba(40, 40, 40, 1.0)',        -- #282828
+  bg1 = 'rgba(60, 56, 54, 1.0)',       -- #3c3836
+  fg = '#ebdbb2',
+  green = '#b8bb26',
+  gray = '#a89984',
+  yellow = '#fabd2f',
+}
 
 config.colors = {
   tab_bar = {
-    background = '#0C0C0C',
+    background = gruvbox.bg,
     active_tab = {
-      bg_color = '#0C0C0C',
-      fg_color = '#a6da95',
+      bg_color = gruvbox.bg,
+      fg_color = gruvbox.green,
     },
     inactive_tab = {
-      bg_color = '#0C0C0C',
-      fg_color = '#cad3f5',
+      bg_color = gruvbox.bg,
+      fg_color = gruvbox.gray,
+    },
+    inactive_tab_hover = {
+      bg_color = gruvbox.bg1,
+      fg_color = gruvbox.fg,
     },
     new_tab = {
-      bg_color = '#0C0C0C',
-      fg_color = '#a6da95',
+      bg_color = gruvbox.bg,
+      fg_color = gruvbox.green,
+    },
+    new_tab_hover = {
+      bg_color = gruvbox.bg1,
+      fg_color = gruvbox.yellow,
     }
   }
 }
 
-config.front_end = 'OpenGL'
+config.front_end = 'Software'
 
 config.font_size = 13
 
@@ -141,6 +159,11 @@ config.keys = {
     }
   },
   {
+    key = "Enter",
+    mods = "SHIFT",
+    action = act.SendString("\x1b\r"),
+  },
+  {
     key = "r",
     mods = "CTRL|SHIFT",
     action = act.ReloadConfiguration
@@ -150,6 +173,46 @@ config.keys = {
     mods = 'CTRL|SHIFT',
     action = wezterm.action_callback(function(window, pane)
       window:perform_action(project_switcher(), pane)
+    end),
+  },
+  {
+    key = 'o',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action_callback(function(window, pane)
+      local overrides = window:get_config_overrides() or {}
+      if overrides.window_background_opacity == 1.0 then
+        local opacity = 0.5
+        overrides.window_background_opacity = opacity
+        overrides.colors = {
+          tab_bar = {
+            background = 'rgba(40, 40, 40, ' .. opacity .. ')',
+            active_tab = {
+              bg_color = 'rgba(40, 40, 40, ' .. opacity .. ')',
+              fg_color = '#b8bb26',
+            },
+            inactive_tab = {
+              bg_color = 'rgba(40, 40, 40, ' .. opacity .. ')',
+              fg_color = '#a89984',
+            },
+            inactive_tab_hover = {
+              bg_color = 'rgba(60, 56, 54, ' .. opacity .. ')',
+              fg_color = '#ebdbb2',
+            },
+            new_tab = {
+              bg_color = 'rgba(40, 40, 40, ' .. opacity .. ')',
+              fg_color = '#b8bb26',
+            },
+            new_tab_hover = {
+              bg_color = 'rgba(60, 56, 54, ' .. opacity .. ')',
+              fg_color = '#fabd2f',
+            }
+          }
+        }
+      else
+        overrides.window_background_opacity = 1.0
+        overrides.colors = nil
+      end
+      window:set_config_overrides(overrides)
     end),
   },
 }

@@ -1,0 +1,239 @@
+/*******************************************************************************
+ * ROFI GRUVBOX THEME
+ * Matching polybar, wezterm, and neovim aesthetic
+ * Centered floating window with pill-shaped elements
+ *******************************************************************************/
+
+configuration {
+    modi:                        "drun,run,window,filebrowser";
+    show-icons:                  true;
+    display-drun:                "Apps";
+    display-run:                 "Run";
+    display-window:              "Windows";
+    display-filebrowser:         "Files";
+    drun-display-format:         "{name}";
+    window-format:               "{w} · {c} · {t}";
+    font:                        "JetBrainsMono Nerd Font 12";
+    icon-theme:                  "Papirus-Dark";
+}
+
+/*******************************************************************************
+ * GRUVBOX COLOR PALETTE
+ *******************************************************************************/
+
+* {
+    /* Gruvbox Dark */
+    bg-dark:                     #282828;
+    bg-medium:                   #3c3836;
+    bg-light:                    #504945;
+    fg-main:                     #ebdbb2;
+    fg-dim:                      #a89984;
+
+    /* Accent Colors */
+    orange:                      #fe8019;
+    orange-dim:                  #d65d0e;
+    blue:                        #83a598;
+    aqua:                        #8ec07c;
+    red:                         #fb4934;
+    green:                       #b8bb26;
+    yellow:                      #fabd2f;
+    purple:                      #d3869b;
+
+    /* Transparency variants */
+    bg-transparent:              #282828ee;
+    bg-selected:                 #3c3836;
+
+    /* Applied colors */
+    background-color:            transparent;
+    text-color:                  @fg-main;
+}
+
+/*******************************************************************************
+ * MAIN WINDOW
+ *******************************************************************************/
+
+window {
+    location:                    center;
+    anchor:                      center;
+    fullscreen:                  false;
+    width:                       600px;
+    x-offset:                    0px;
+    y-offset:                    0px;
+
+    enabled:                     true;
+    border-radius:               16px;
+    cursor:                      "default";
+    background-color:            @bg-transparent;
+    border:                      2px solid;
+    border-color:                @bg-light;
+}
+
+/*******************************************************************************
+ * MAIN BOX
+ *******************************************************************************/
+
+mainbox {
+    enabled:                     true;
+    spacing:                     15px;
+    padding:                     20px;
+    background-color:            transparent;
+    children:                    [ "inputbar", "message", "listview", "mode-switcher" ];
+}
+
+/*******************************************************************************
+ * INPUTBAR (SEARCH BAR) - PILL SHAPED
+ *******************************************************************************/
+
+inputbar {
+    enabled:                     true;
+    spacing:                     10px;
+    padding:                     12px 20px;
+    border-radius:               25px;
+    background-color:            @bg-medium;
+    text-color:                  @fg-main;
+    children:                    [ "textbox-prompt-colon", "entry" ];
+}
+
+textbox-prompt-colon {
+    enabled:                     true;
+    expand:                      false;
+    str:                         "";
+    padding:                     0px 8px 0px 0px;
+    background-color:            transparent;
+    text-color:                  @orange;
+}
+
+entry {
+    enabled:                     true;
+    expand:                      true;
+    background-color:            transparent;
+    text-color:                  @fg-main;
+    cursor:                      text;
+    placeholder:                 "Search...";
+    placeholder-color:           @fg-dim;
+}
+
+/*******************************************************************************
+ * MESSAGE
+ *******************************************************************************/
+
+message {
+    enabled:                     true;
+    margin:                      0px;
+    padding:                     10px;
+    border-radius:               12px;
+    background-color:            @bg-medium;
+    text-color:                  @fg-main;
+}
+
+textbox {
+    background-color:            transparent;
+    text-color:                  @fg-main;
+    vertical-align:              0.5;
+    horizontal-align:            0.0;
+}
+
+/*******************************************************************************
+ * LISTVIEW
+ *******************************************************************************/
+
+listview {
+    enabled:                     true;
+    columns:                     1;
+    lines:                       8;
+    cycle:                       true;
+    dynamic:                     true;
+    scrollbar:                   false;
+    layout:                      vertical;
+    reverse:                     false;
+    fixed-height:                true;
+    fixed-columns:               true;
+
+    spacing:                     5px;
+    background-color:            transparent;
+    cursor:                      "default";
+}
+
+/*******************************************************************************
+ * ELEMENTS
+ *******************************************************************************/
+
+element {
+    enabled:                     true;
+    spacing:                     12px;
+    padding:                     10px 15px;
+    border-radius:               12px;
+    background-color:            transparent;
+    text-color:                  @fg-main;
+    cursor:                      pointer;
+}
+
+element normal.normal {
+    background-color:            transparent;
+    text-color:                  @fg-main;
+}
+
+element normal.urgent {
+    background-color:            @red;
+    text-color:                  @bg-dark;
+}
+
+element normal.active {
+    background-color:            @green;
+    text-color:                  @bg-dark;
+}
+
+element selected.normal {
+    background-color:            @bg-selected;
+    text-color:                  @orange;
+    border:                      0px 0px 0px 3px solid;
+    border-color:                @orange;
+}
+
+element selected.urgent {
+    background-color:            @red;
+    text-color:                  @bg-dark;
+}
+
+element selected.active {
+    background-color:            @aqua;
+    text-color:                  @bg-dark;
+}
+
+element-icon {
+    background-color:            transparent;
+    text-color:                  inherit;
+    size:                        28px;
+    cursor:                      inherit;
+}
+
+element-text {
+    background-color:            transparent;
+    text-color:                  inherit;
+    cursor:                      inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.0;
+}
+
+/*******************************************************************************
+ * MODE SWITCHER
+ *******************************************************************************/
+
+mode-switcher {
+    enabled:                     true;
+    spacing:                     10px;
+    background-color:            transparent;
+}
+
+button {
+    padding:                     10px 20px;
+    border-radius:               12px;
+    background-color:            @bg-medium;
+    text-color:                  @fg-dim;
+    cursor:                      pointer;
+}
+
+button selected {
+    background-color:            @orange-dim;
+    text-color:                  @fg-main;
+}

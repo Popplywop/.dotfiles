@@ -1,0 +1,20 @@
+#!/bin/bash
+
+xrandr --output eDP-1 --mode 1920x1080 --rate 60
+
+feh --bg-fill ~/wallpapers/darkerthanblack[1].png
+
+# Start compositor
+picom --config ~/.config/picom/picom.conf &
+
+# Start polybar
+~/.config/polybar/launch.sh &
+
+# Start network manager applet (if needed)
+nm-applet &
+
+# Set keyboard repeat rate
+xset r rate 300 50 &
+
+# Note: You might need to create symbolic links to this file:
+# ln -sf ~/.dotfiles/.xprofile ~/.xprofile

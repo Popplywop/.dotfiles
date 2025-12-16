@@ -195,6 +195,29 @@ c.content.autoplay = False
 c.url.default_page = "about:blank"
 c.url.start_pages = ["about:blank"]
 
+# =============================================================================
+# Content / Rendering Settings (fixes for modern websites)
+# =============================================================================
+# Ensure JavaScript is enabled (required for GitHub, etc.)
+c.content.javascript.enabled = True
+
+# Enable WebGL for sites that need it
+c.content.webgl = True
+
+# Enable canvas reading (some sites need this)
+c.content.canvas_reading = True
+
+# Don't force dark mode on websites (can break rendering)
+# The preferred_color_scheme setting above just hints to sites, this actually forces it
+c.colors.webpage.darkmode.enabled = False
+
+# Enable local storage and cookies (needed for login sessions)
+c.content.local_storage = True
+
+# Hardware acceleration - try 'software' if you have GPU issues
+# Options: 'software-opengl', 'chromium', 'none', 'qt-quick'
+# c.qt.args = ['disable-gpu']  # Uncomment if you have GPU rendering issues
+
 # Search engines
 c.url.searchengines = {
     "DEFAULT": "https://duckduckgo.com/?q={}",

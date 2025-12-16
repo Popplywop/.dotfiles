@@ -7,15 +7,7 @@ set -euo pipefail
 # =============================================================================
 # Configuration
 # =============================================================================
-# Change to 'dmenu' if you prefer dmenu over rofi
-PICKER="rofi -dmenu -i -p 'Bitwarden'"
-# PICKER="dmenu -i -p 'Bitwarden:'"
-
-# Bitwarden CLI timeout (seconds) - how long the session stays unlocked
-BW_SESSION_TIMEOUT=900
-
-# Cache file for session token
-BW_SESSION_FILE="${XDG_RUNTIME_DIR:-/tmp}/bw-session"
+PICKER_CMD="rofi -dmenu -i -p Bitwarden"
 
 # =============================================================================
 # Helper Functions
@@ -40,60 +32,6 @@ get_domain() {
 }
 
 # =============================================================================
-# Session Management
-# =============================================================================
-get_session() {
-    # Check for cached session
-    if [[ -f "$BW_SESSION_FILE" ]]; then
-        local session
-        session=$(cat "$BW_SESSION_FILE")
-        # Verify session is still valid
-        if BW_SESSION="$session" bw unlock --check &>/dev/null; then
-            echo "$session"
-            return 0
-        fi
-    fi
-    return 1
-}
-
-unlock_vault() {
-    local password
-    local session
-
-    # Check if already unlocked
-    if session=$(get_session); then
-        echo "$session"
-        return 0
-    fi
-
-    # Check vault status
-    local status
-    status=$(bw status 2>/dev/null | jq -r '.status' 2>/dev/null || echo "unauthenticated")
-
-    case "$status" in
-        "unauthenticated")
-            error "Not logged in. Run 'bw login' first."
-            ;;
-        "locked")
-            # Prompt for master password
-            password=$(rofi -dmenu -password -p "Master Password" -lines 0) || exit 1
-            session=$(bw unlock --raw "$password" 2>/dev/null) || error "Failed to unlock vault"
-            ;;
-        "unlocked")
-            session=$(bw unlock --raw 2>/dev/null)
-            ;;
-        *)
-            error "Unknown vault status: $status"
-            ;;
-    esac
-
-    # Cache the session
-    echo "$session" > "$BW_SESSION_FILE"
-    chmod 600 "$BW_SESSION_FILE"
-    echo "$session"
-}
-
-# =============================================================================
 # Main Logic
 # =============================================================================
 main() {
@@ -101,45 +39,70 @@ main() {
     [[ -z "${QUTE_URL:-}" ]] && error "Not running as qutebrowser userscript"
     [[ -z "${QUTE_FIFO:-}" ]] && error "QUTE_FIFO not set"
 
-    # Check if bw is installed
+    # Check dependencies
     command -v bw &>/dev/null || error "Bitwarden CLI (bw) not installed"
     command -v jq &>/dev/null || error "jq not installed"
     command -v rofi &>/dev/null || error "rofi not installed"
 
-    local domain
-    domain=$(get_domain "$QUTE_URL")
+    # Check if logged in
+    local status
+    status=$(bw status 2>/dev/null | jq -r '.status' 2>/dev/null || echo "error")
 
-    info "Searching for $domain..."
+    if [[ "$status" == "unauthenticated" ]]; then
+        error "Not logged in. Run 'bw login' first."
+    fi
+
+    # Always prompt for master password
+    local password
+    password=$(rofi -dmenu -password -p "Password" -mesg "🔐 Enter Bitwarden Master Password" -lines 0 -width 400) || exit 0
+
+    if [[ -z "$password" ]]; then
+        exit 0
+    fi
 
     # Unlock vault and get session
     local session
-    session=$(unlock_vault) || exit 1
+    session=$(bw unlock --raw "$password" 2>&1)
 
-    # Sync vault (optional, comment out for faster but potentially stale results)
-    # BW_SESSION="$session" bw sync &>/dev/null
+    if [[ -z "$session" || "$session" == *"Invalid"* || "$session" == *"error"* ]]; then
+        error "Failed to unlock vault"
+    fi
+
+    # Get domain for search
+    local domain
+    domain=$(get_domain "$QUTE_URL")
+    info "Searching for $domain..."
 
     # Search for matching credentials
     local items
-    items=$(BW_SESSION="$session" bw list items --search "$domain" 2>/dev/null) || error "Failed to search vault"
+    items=$(BW_SESSION="$session" bw list items --search "$domain" 2>/dev/null)
 
-    # Filter to only login items with URLs
+    if [[ -z "$items" || "$items" == "[]" ]]; then
+        error "No credentials found for $domain"
+    fi
+
+    # Filter to only login items
     local logins
-    logins=$(echo "$items" | jq -r '[.[] | select(.type == 1 and .login != null)]')
+    logins=$(echo "$items" | jq '[.[] | select(.type == 1) | select(.login)]')
 
     local count
     count=$(echo "$logins" | jq 'length')
 
     if [[ "$count" -eq 0 ]]; then
-        error "No credentials found for $domain"
+        error "No login credentials found for $domain"
     fi
 
     # Build picker menu: "username (name)"
     local menu
     menu=$(echo "$logins" | jq -r '.[] | "\(.login.username) (\(.name))"')
 
-    # Show picker
+    # Show picker for credential selection
     local selection
-    selection=$(echo "$menu" | $PICKER) || exit 0  # User cancelled
+    selection=$(echo "$menu" | $PICKER_CMD) || exit 0
+
+    if [[ -z "$selection" ]]; then
+        exit 0
+    fi
 
     # Find the selected item index
     local index=0
@@ -151,49 +114,22 @@ main() {
     done <<< "$menu"
 
     # Extract credentials for selected item
-    local username password
+    local username password_val
     username=$(echo "$logins" | jq -r ".[$index].login.username // empty")
-    password=$(echo "$logins" | jq -r ".[$index].login.password // empty")
+    password_val=$(echo "$logins" | jq -r ".[$index].login.password // empty")
 
-    if [[ -z "$username" || -z "$password" ]]; then
+    if [[ -z "$username" || -z "$password_val" ]]; then
         error "Failed to extract credentials"
     fi
 
-    # Escape special characters for JavaScript
-    username_escaped=$(printf '%s' "$username" | sed 's/\\/\\\\/g; s/"/\\"/g; s/`/\\`/g')
-    password_escaped=$(printf '%s' "$password" | sed 's/\\/\\\\/g; s/"/\\"/g; s/`/\\`/g')
+    # Escape special characters for JavaScript (single quotes)
+    username_escaped=$(printf '%s' "$username" | sed "s/\\\\/\\\\\\\\/g; s/'/\\\\'/g")
+    password_escaped=$(printf '%s' "$password_val" | sed "s/\\\\/\\\\\\\\/g; s/'/\\\\'/g")
 
-    # Fill the form using JavaScript
-    cat >> "$QUTE_FIFO" << EOF
-jseval -q (function() {
-    const username = "$username_escaped";
-    const password = "$password_escaped";
+    # Fill the form using JavaScript (must be single line for qutebrowser FIFO)
+    local js_code="(function() { var u='${username_escaped}'; var p='${password_escaped}'; var uf=document.querySelector('input[type=\"email\"], input[type=\"text\"][name*=\"user\"], input[type=\"text\"][name*=\"email\"], input[name=\"username\"], input[name=\"email\"]'); var pf=document.querySelector('input[type=\"password\"]'); if(uf){uf.focus();uf.value=u;uf.dispatchEvent(new Event('input',{bubbles:true}));uf.dispatchEvent(new Event('change',{bubbles:true}));} if(pf){pf.focus();pf.value=p;pf.dispatchEvent(new Event('input',{bubbles:true}));pf.dispatchEvent(new Event('change',{bubbles:true}));} if(!uf&&!pf){alert('Bitwarden: Could not find login fields');} })();"
 
-    // Find username/email field
-    const userField = document.querySelector('input[type="email"], input[type="text"][name*="user"], input[type="text"][name*="email"], input[type="text"][name*="login"], input[type="text"][autocomplete*="user"], input[name="username"], input[name="email"], input[name="login"]');
-
-    // Find password field
-    const passField = document.querySelector('input[type="password"]');
-
-    if (userField) {
-        userField.focus();
-        userField.value = username;
-        userField.dispatchEvent(new Event('input', { bubbles: true }));
-        userField.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-
-    if (passField) {
-        passField.focus();
-        passField.value = password;
-        passField.dispatchEvent(new Event('input', { bubbles: true }));
-        passField.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-
-    if (!userField && !passField) {
-        alert('Bitwarden: Could not find login fields');
-    }
-})();
-EOF
+    echo "jseval -q ${js_code}" >> "$QUTE_FIFO"
 
     info "Filled credentials for ${username}"
 }

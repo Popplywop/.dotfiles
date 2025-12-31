@@ -2,33 +2,77 @@ local wezterm = require 'wezterm';
 local act = wezterm.action
 local config = {}
 
+local is_windows = function()
+  return wezterm.target_triple:find("windows") ~= nil
+end
+
+-- Get path separator based on OS
+local function path_separator()
+  return is_windows() and "\\" or "/"
+end
+
 -- Custom project switcher
 local function project_switcher()
-  local search_paths = {
-    wezterm.home_dir .. "/dev",
-    wezterm.home_dir .. "/.dotfiles",
-  }
+  local sep = path_separator()
+  local search_paths = {}
+
+  if is_windows() then
+    search_paths = {
+      wezterm.home_dir .. "\\dev",
+      wezterm.home_dir .. "\\.dotfiles",
+      [[C:\Sandboxes]]
+    }
+  else
+    search_paths = {
+      wezterm.home_dir .. "/dev",
+      wezterm.home_dir .. "/.dotfiles",
+    }
+  end
 
   return act.InputSelector {
     title = "Select Project",
     choices = (function()
       local choices = {}
+
       for _, path in ipairs(search_paths) do
-        -- Find git directories
-        local success, stdout = wezterm.run_child_process({
-          "find",
-          path,
-          "-type", "d",
-          "-name", ".git",
-          "-maxdepth", "3"
-        })
+        local success, stdout, stderr
+
+        if is_windows() then
+          -- Use PowerShell to find git directories on Windows
+          success, stdout, stderr = wezterm.run_child_process({
+            "pwsh",
+            "-NoProfile",
+            "-Command",
+            string.format(
+              [[Get-ChildItem -Path "%s" -Directory -Recurse -Depth 2 -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq ".git" } | ForEach-Object { $_.Parent.FullName }]],
+              path
+            )
+          })
+        else
+          -- Use find on Linux/Unix
+          success, stdout, stderr = wezterm.run_child_process({
+            "find",
+            path,
+            "-type", "d",
+            "-name", ".git",
+            "-maxdepth", "3"
+          })
+        end
 
         if success then
           for line in stdout:gmatch("[^\r\n]+") do
-            -- Get parent directory of .git folder
-            local project_path = line:match("(.+)/.git$")
+            local project_path = line
+
+            -- On Unix, extract parent directory from .git path
+            if not is_windows() then
+              project_path = line:match("(.+)/.git$")
+            end
+
             if project_path then
-              local label = project_path:gsub(wezterm.home_dir, "~")
+              -- Normalize path and create label
+              project_path = project_path:gsub("[\r\n]", "")
+              local label = project_path:gsub(wezterm.home_dir:gsub("\\", "\\\\"), "~")
+
               table.insert(choices, {
                 label = label,
                 id = project_path,
@@ -48,8 +92,8 @@ local function project_switcher()
 
     action = wezterm.action_callback(function(window, pane, id, label)
       if id then
-        -- Extract project name from the path
-        local project_name = id:match("([^/]+)$")
+        -- Extract project name from the path (works for both / and \)
+        local project_name = id:match("([^/\\]+)$")
 
         -- Spawn a new tab with the selected directory
         window:perform_action(
@@ -73,19 +117,8 @@ local function project_switcher()
   }
 end
 
-local is_windows = function()
-  return wezterm.target_triple:find("windows") ~= nil
-end
-
-config.wsl_domains = {
-  {
-    name = 'WSL:Ubuntu',
-    distribution = 'Ubuntu'
-  }
-}
-
 if is_windows() then
-  config.default_domain = 'WSL:Ubuntu'
+  config.default_prog = { 'pwsh' }
 else
   config.default_prog = { 'bash' }
   config.enable_wayland = false

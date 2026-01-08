@@ -74,10 +74,9 @@ VD.animation_on:=false
 
 ; Media Keys
 ; Alt+f11
-!f9::Run "ahk_exe Cider.exe"
-!f10::Media_Prev
-!f11::Media_Play_Pause
-!f12::Media_Next
+#+0::Media_Prev
+#+9::Media_Play_Pause
+#+8::Media_Next
 
 ; Virtal Desktop Switching
 VD.createUntil(5) ;create until we have atleast 5 desktops

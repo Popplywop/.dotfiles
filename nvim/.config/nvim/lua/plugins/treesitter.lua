@@ -19,11 +19,6 @@ return {
           "sql"
         },
         sync_install = false,
-        modules = {
-          "highlight",
-          "incremental_selection",
-          "indent",
-        },
         highlight = {
           enable = true
         },

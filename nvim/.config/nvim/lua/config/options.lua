@@ -16,7 +16,7 @@ vim.opt.smartcase = true
 
 vim.opt.scrolloff = 8
 
-vim.g.clipboard = 'wlcopy'
+vim.g.clipboard = 'wl-copy'
 
 vim.opt.backspace = '2'
 vim.opt.showcmd = true
@@ -48,11 +48,3 @@ vim.opt.hlsearch = false
 vim.g['netrw_banner'] = 0
 vim.g['netrw_liststyle'] = 3
 vim.g['netrw_winsize'] = 25
-
-vim.api.nvim_create_autocmd('FileType', {
-  pattern = { '*.cs' },
-  callback = function()
-    vim.cmd('setlocal noeol binary filetypes=dos')
-    vim.cmd('set nofixendofline')
-  end
-})

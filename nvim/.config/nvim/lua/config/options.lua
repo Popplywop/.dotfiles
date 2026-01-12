@@ -16,7 +16,7 @@ vim.opt.smartcase = true
 
 vim.opt.scrolloff = 8
 
-vim.g.clipboard = 'wl-copy'
+vim.g.clipboard = 'xclip'
 
 vim.opt.backspace = '2'
 vim.opt.showcmd = true

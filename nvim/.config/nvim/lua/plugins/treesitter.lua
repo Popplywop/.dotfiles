@@ -4,7 +4,7 @@ return {
     build = ":TSUpdate",
     event = { "BufReadPre", "BufNewFile" },
     config = function()
-      local configs = require("nvim-treesitter.config")
+      local configs = require("nvim-treesitter.configs")
 
       configs.setup({
         ignore_install = {},

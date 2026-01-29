@@ -12,6 +12,7 @@ else
     'roslyn',
     'typescript',
     'html',
-    'css'
+    'css',
+    'clangd'
   })
 end

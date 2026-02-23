@@ -20,6 +20,7 @@ require("lazy").setup({
   spec = {
     -- import your plugins
     { import = "plugins" },
+{ import = "plugins.dap" },
   },
   -- automatically check for plugin updates
   checker = { enabled = true },

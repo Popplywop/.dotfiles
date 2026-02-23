@@ -146,12 +146,5 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-# Claude Code AWS Bedrock configuration
-export CLAUDE_CODE_USE_BEDROCK=1
-export AWS_REGION=us-east-1
-export AWS_PROFILE="pdi-bedrock"
-# Uncomment the line below if you need to use a specific model
-# export ANTHROPIC_MODEL='us.anthropic.claude-3-7-sonnet-20240307-v1:0'
-
 eval "$(zoxide init bash)"
 export PATH="$HOME/.local/bin/statusbar:$PATH"

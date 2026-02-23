@@ -6,6 +6,7 @@ else
   require('config.keymaps')
   require('config.autocommands')
   require('config.diagnostics')
+  require('config.dap_keymaps')
 
   vim.lsp.enable({
     'luals',

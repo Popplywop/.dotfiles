@@ -19,7 +19,9 @@ return {
         { "<leader>e", group = "[E]dit" },
         { "<leader>e_", hidden = true },
         { "<leader>l", group = "[L]aunch" },
-        { "<leader>l_", hidden = true }
+        { "<leader>l_", hidden = true },
+        { "<leader>d", group = "[D]otnet" },
+        { "<leader>d_", hidden = true }
       }
     end,
   },

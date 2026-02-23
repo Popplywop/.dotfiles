@@ -32,3 +32,16 @@ vim.keymap.set("n", "<leader>lc", "<Cmd>FloatermNew claude<CR>", { desc = "Launc
 vim.keymap.set('n', '<leader>H', function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end, { desc = 'Show inlay hints' })
+
+-- Floating quickfix
+local float_qf = require('float-qf')
+vim.keymap.set("n", "<leader>qf", float_qf.open_float_qf, { desc = "Floating Quickfix" })
+vim.keymap.set("n", "<leader>el", float_qf.eslint_changed_files, { desc = "ESLint Changed Files" })
+
+-- Dotnet
+local dotnet = require('dotnet')
+vim.keymap.set("n", "<leader>db", dotnet.build, { desc = "Dotnet Build" })
+vim.keymap.set("n", "<leader>dr", dotnet.restore, { desc = "Dotnet Restore" })
+vim.keymap.set("n", "<leader>dp", dotnet.package_add, { desc = "Dotnet Add Package" })
+vim.keymap.set("n", "<leader>de", dotnet.reference_add, { desc = "Dotnet Add Reference" })
+vim.keymap.set("n", "<leader>ds", dotnet.package_search, { desc = "NuGet Search" })

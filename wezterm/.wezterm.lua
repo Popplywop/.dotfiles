@@ -13,15 +13,19 @@ end
 
 -- Custom project switcher
 local function project_switcher()
-  local sep = path_separator()
+  -- WSL home directory (used when running from Windows)
+  local wsl_home = "/home/jpopple"
+
   local search_paths = {}
+  local home_for_label = wezterm.home_dir
 
   if is_windows() then
+    -- Search inside WSL filesystem
     search_paths = {
-      wezterm.home_dir .. "\\dev",
-      wezterm.home_dir .. "\\.dotfiles",
-      [[C:\Sandboxes]]
+      wsl_home .. "/dev",
+      wsl_home .. "/.dotfiles",
     }
+    home_for_label = wsl_home
   else
     search_paths = {
       wezterm.home_dir .. "/dev",
@@ -38,15 +42,14 @@ local function project_switcher()
         local success, stdout, stderr
 
         if is_windows() then
-          -- Use PowerShell to find git directories on Windows
+          -- Use find via WSL to search inside WSL filesystem
           success, stdout, stderr = wezterm.run_child_process({
-            "pwsh",
-            "-NoProfile",
-            "-Command",
-            string.format(
-              [[Get-ChildItem -Path "%s" -Directory -Recurse -Depth 2 -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq ".git" } | ForEach-Object { $_.Parent.FullName }]],
-              path
-            )
+            "wsl.exe",
+            "find",
+            path,
+            "-type", "d",
+            "-name", ".git",
+            "-maxdepth", "3"
           })
         else
           -- Use find on Linux/Unix
@@ -61,17 +64,12 @@ local function project_switcher()
 
         if success then
           for line in stdout:gmatch("[^\r\n]+") do
-            local project_path = line
-
-            -- On Unix, extract parent directory from .git path
-            if not is_windows() then
-              project_path = line:match("(.+)/.git$")
-            end
+            -- Extract parent directory from .git path
+            local project_path = line:match("(.+)/.git$")
 
             if project_path then
-              -- Normalize path and create label
               project_path = project_path:gsub("[\r\n]", "")
-              local label = project_path:gsub(wezterm.home_dir:gsub("\\", "\\\\"), "~")
+              local label = project_path:gsub(home_for_label, "~")
 
               table.insert(choices, {
                 label = label,
@@ -92,14 +90,17 @@ local function project_switcher()
 
     action = wezterm.action_callback(function(window, pane, id, label)
       if id then
-        -- Extract project name from the path (works for both / and \)
-        local project_name = id:match("([^/\\]+)$")
+        -- Extract project name from the path
+        local project_name = id:match("([^/]+)$")
 
         -- Spawn a new tab with the selected directory
+        local spawn_opts = { cwd = id }
+        if is_windows() then
+          spawn_opts.domain = { DomainName = 'WSL:Ubuntu' }
+        end
+
         window:perform_action(
-          act.SpawnCommandInNewTab {
-            cwd = id,
-          },
+          act.SpawnCommandInNewTab(spawn_opts),
           pane
         )
 
@@ -118,7 +119,16 @@ local function project_switcher()
 end
 
 if is_windows() then
-  config.default_prog = { 'pwsh' }
+  config.default_prog = { 'wsl.exe' }
+  -- Set default domain to WSL so new tabs/panes open in WSL by default
+  config.default_domain = 'WSL:Ubuntu'
+  config.wsl_domains = {
+    {
+      name = 'WSL:Ubuntu',
+      distribution = 'Ubuntu',
+      default_cwd = '~',
+    },
+  }
 else
   config.default_prog = { 'bash' }
   config.enable_wayland = false
@@ -176,9 +186,72 @@ config.font_size = 13
 
 config.window_decorations = 'RESIZE'
 
-config.leader = { key = 'a', mods = 'CTRL' }
+config.leader = { key = 'Space', mods = 'CTRL' }
 
 config.keys = {
+  -- New WSL tab (Ctrl+Shift+T) - default behavior since WSL is default domain
+  {
+    key = 't',
+    mods = 'CTRL|SHIFT',
+    action = act.SpawnTab 'CurrentPaneDomain',
+  },
+  -- New PowerShell tab (Ctrl+Shift+P)
+  {
+    key = 'p',
+    mods = 'CTRL|SHIFT',
+    action = act.SpawnCommandInNewTab {
+      args = { 'pwsh' },
+      domain = { DomainName = 'local' },
+    },
+  },
+  -- Split pane horizontally in WSL (Leader + -)
+  {
+    key = '-',
+    mods = 'LEADER',
+    action = act.SplitVertical { domain = 'CurrentPaneDomain' },
+  },
+  -- Split pane vertically in WSL (Leader + |)
+  {
+    key = '|',
+    mods = 'LEADER|SHIFT',
+    action = act.SplitHorizontal { domain = 'CurrentPaneDomain' },
+  },
+  -- Split pane horizontally in PowerShell (Leader + Shift + -)
+  {
+    key = '_',
+    mods = 'LEADER|SHIFT',
+    action = act.SplitVertical {
+      args = { 'pwsh' },
+      domain = { DomainName = 'local' },
+    },
+  },
+  -- Close current pane (Leader + x)
+  {
+    key = 'x',
+    mods = 'LEADER',
+    action = act.CloseCurrentPane { confirm = true },
+  },
+  -- Navigate panes (Leader + h/j/k/l)
+  {
+    key = 'h',
+    mods = 'LEADER',
+    action = act.ActivatePaneDirection 'Left',
+  },
+  {
+    key = 'j',
+    mods = 'LEADER',
+    action = act.ActivatePaneDirection 'Down',
+  },
+  {
+    key = 'k',
+    mods = 'LEADER',
+    action = act.ActivatePaneDirection 'Up',
+  },
+  {
+    key = 'l',
+    mods = 'LEADER',
+    action = act.ActivatePaneDirection 'Right',
+  },
   {
     key = 'E',
     mods = 'CTRL|SHIFT',

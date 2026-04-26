@@ -1,0 +1,6 @@
+-- yazi init.lua
+-- Plugins can be added here via `ya pack` (yazi package manager)
+-- Examples:
+--   ya pack -a yazi-rs/plugins:git        -- git status in file list
+--   ya pack -a yazi-rs/plugins:jump-to-char
+--   ya pack -a yazi-rs/plugins:smart-filter

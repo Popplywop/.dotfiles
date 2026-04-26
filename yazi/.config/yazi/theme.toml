@@ -1,0 +1,126 @@
+# Gruber Darker — yazi theme
+#
+# Palette reference:
+#   bg-1  #101010   bg    #181818   bg+1  #282828
+#   bg+2  #453d41   bg+3  #484848   bg+4  #52494e
+#   fg    #e4e4ef   fg+1  #f4f4ff
+#   red   #f43841   green #73c936   yellow  #ffdd33
+#   brown #cc8c3c   quartz #95a99f  niagara #96a6c8
+#   niagara-1 #5f627f              wisteria #9e95c7
+
+# ── Manager ───────────────────────────────────────────────────────────────
+[manager]
+cwd = { fg = "#ffdd33" }
+
+hovered         = { fg = "#181818", bg = "#9e95c7" }
+preview_hovered = { underline = true }
+
+find_keyword  = { fg = "#ffdd33", bold = true, italic = true, underline = true }
+find_position = { fg = "#9e95c7", bold = true, reversed = true }
+
+marker_copied   = { fg = "#73c936",  bg = "#73c936" }
+marker_cut      = { fg = "#f43841",  bg = "#f43841" }
+marker_marked   = { fg = "#ffdd33",  bg = "#ffdd33" }
+marker_selected = { fg = "#96a6c8",  bg = "#96a6c8" }
+
+tab_active   = { fg = "#181818", bg = "#9e95c7", bold = true }
+tab_inactive = { fg = "#5f627f", bg = "#282828" }
+tab_width    = 1
+
+count_copied   = { fg = "#181818", bg = "#73c936" }
+count_cut      = { fg = "#181818", bg = "#f43841" }
+count_selected = { fg = "#181818", bg = "#96a6c8" }
+
+border_symbol = "│"
+border_style  = { fg = "#52494e" }
+
+# ── Status bar ────────────────────────────────────────────────────────────
+[status]
+separator_open  = ""
+separator_close = ""
+separator_style = { fg = "#282828", bg = "#282828" }
+
+mode_normal = { fg = "#181818", bg = "#96a6c8", bold = true }
+mode_select = { fg = "#181818", bg = "#73c936", bold = true }
+mode_unset  = { fg = "#181818", bg = "#9e95c7", bold = true }
+
+progress_label  = { fg = "#e4e4ef", bold = true }
+progress_normal = { fg = "#96a6c8", bg = "#181818" }
+progress_error  = { fg = "#f43841", bg = "#181818" }
+
+perm_type  = { fg = "#9e95c7" }
+perm_read  = { fg = "#ffdd33" }
+perm_write = { fg = "#f43841" }
+perm_exec  = { fg = "#73c936" }
+perm_sep   = { fg = "#52494e" }
+
+# ── Input dialog ──────────────────────────────────────────────────────────
+[input]
+border   = { fg = "#9e95c7" }
+title    = { fg = "#e4e4ef", bold = true }
+value    = { fg = "#e4e4ef" }
+selected = { reversed = true }
+
+# ── Completion popup ──────────────────────────────────────────────────────
+[completion]
+border   = { fg = "#9e95c7" }
+active   = { bg = "#282828", bold = true }
+inactive = { fg = "#95a99f" }
+
+icon_file    = ""
+icon_folder  = ""
+icon_command = ""
+
+# ── Task manager ──────────────────────────────────────────────────────────
+[tasks]
+border  = { fg = "#9e95c7" }
+title   = { fg = "#e4e4ef", bold = true }
+hovered = { underline = true }
+
+# ── Which-key ─────────────────────────────────────────────────────────────
+[which]
+mask            = { bg = "#181818" }
+cand            = { fg = "#96a6c8" }
+rest            = { fg = "#52494e" }
+desc            = { fg = "#9e95c7" }
+separator       = "  "
+separator_style = { fg = "#453d41" }
+
+# ── Help panel ────────────────────────────────────────────────────────────
+[help]
+on      = { fg = "#9e95c7" }
+run     = { fg = "#96a6c8" }
+desc    = { fg = "#95a99f" }
+hovered = { bg = "#282828", bold = true }
+footer  = { fg = "#181818", bg = "#e4e4ef" }
+
+# ── File type colors ──────────────────────────────────────────────────────
+[filetype]
+rules = [
+  # Media
+  { mime = "image/*",  fg = "#96a6c8" },
+  { mime = "video/*",  fg = "#9e95c7" },
+  { mime = "audio/*",  fg = "#ffdd33" },
+  # Text & code
+  { mime = "text/*",   fg = "#e4e4ef" },
+  { name = "*.lua",    fg = "#96a6c8" },
+  { name = "*.toml",   fg = "#73c936" },
+  { name = "*.yaml",   fg = "#73c936" },
+  { name = "*.yml",    fg = "#73c936" },
+  { name = "*.json",   fg = "#73c936" },
+  { name = "*.sh",     fg = "#73c936" },
+  { name = "*.bash",   fg = "#73c936" },
+  { name = "*.md",     fg = "#95a99f" },
+  # Archives → red
+  { mime = "application/zip",              fg = "#f43841" },
+  { mime = "application/gzip",             fg = "#f43841" },
+  { mime = "application/x-tar",            fg = "#f43841" },
+  { mime = "application/x-bzip2",          fg = "#f43841" },
+  { mime = "application/x-7z-compressed",  fg = "#f43841" },
+  { mime = "application/x-rar",            fg = "#f43841" },
+  # Docs → brown
+  { mime = "application/pdf", fg = "#cc8c3c" },
+  # Fallback
+  { name = "*/", fg = "#96a6c8" },
+  { name = "*",  fg = "#e4e4ef" },
+]

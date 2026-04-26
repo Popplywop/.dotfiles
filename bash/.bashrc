@@ -24,3 +24,13 @@ if [ -z "$TMUX" ] && [[ ! "$TERM" =~ ^(tmux|screen) ]] && command -v tmux &>/dev
 fi
 
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init bash)"; fi
+
+# yazi — shell wrapper: cd to last dir on quit
+function yy() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+    yazi "$@" --cwd-file="$tmp"
+    if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+        builtin cd -- "$cwd"
+    fi
+    rm -f -- "$tmp"
+}

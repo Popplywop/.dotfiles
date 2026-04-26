@@ -14,7 +14,5 @@ return {
       win_options = { wrap = true },
       vim.keymap.set('n', '-', vim.cmd.Oil, { desc = "Open Parent Folder" })
     },
-    -- Optional dependencies
-    dependencies = { { "echasnovski/mini.icons", opts = {} } },
   },
 }

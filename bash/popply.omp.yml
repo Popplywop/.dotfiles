@@ -1,0 +1,73 @@
+$schema: https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json
+palette:
+  fg: "#e4e4ef"
+  fg+1: "#f4f4ff"
+  fg+2: "#f5f5f5"
+  white: "#ffffff"
+  black: "#000000"
+  bg-1: "#101010"
+  bg: "#181818"
+  bg+1: "#282828"
+  bg+2: "#453d41"
+  bg+3: "#484848"
+  bg+4: "#52494e"
+  red-1: "#c73c3f"
+  red: "#f43841"
+  red+1: "#ff4f58"
+  green: "#73c936"
+  yellow: "#ffdd33"
+  brown: "#cc8c3c"
+  quartz: "#95a99f"
+  niagara-1: "#5f627f"
+  niagara: "#96a6c8"
+  wisteria: "#9e95c7"
+blocks:
+  - alignment: left
+    newline: true
+    segments:
+      - background: "p:bg"
+        style: plain
+        template: "{{ .Icon }} "
+        type: os
+      - background: "p:bg"
+        foreground: "p:yellow"
+        template: "{{ .UserName }}@{{ .HostName }} "
+        style: plain
+        type: session
+      - background: "p:bg"
+        foreground: "p:quartz"
+        style: plain
+        template: "{{ .Path }} "
+        options:
+          folder_icon: "..\ue5fe.."
+          home_icon: "~"
+          style: agnoster_short
+        type: path
+      - background: "p:bg"
+        foreground: "p:niagara"
+        options:
+          branch_icon: "\ue725 "
+          cherry_pick_icon: "\ue29b "
+          commit_icon: "\uf417 "
+          fetch_status: false
+          fetch_upstream_icon: false
+          merge_icon: "\ue727 "
+          no_commits_icon: "\uf0c3 "
+          rebase_icon: "\ue728 "
+          revert_icon: "\uf0e2 "
+          tag_icon: "\uf412 "
+        template: "{{ .HEAD }} "
+        style: plain
+        type: git
+      - background: "p:bg"
+        foreground: "p:yellow"
+        template: "\uf105"
+        type: text
+    type: prompt
+final_space: true
+upgrade:
+  notice: true
+  interval: 168h
+  auto: true
+  source: cdn
+version: 4

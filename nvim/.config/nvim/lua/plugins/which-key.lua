@@ -1,29 +1,23 @@
+-- Plugin: folke/which-key.nvim
+-- Installed via store.nvim
+
 return {
-  {                     -- Useful plugin to show you pending keybinds.
-    'folke/which-key.nvim',
-    event = 'VeryLazy', -- Sets the loading event to 'VeryLazy'
-    opts = function(_, opts) -- This is the function that runs, AFTER loading
-      local wk = require('which-key')
-      wk.setup()
-
-      -- Document existing key chains
-      wk.add {
-        { "<leader>c",  group = "[C]ode" },
-        { "<leader>c_", hidden = true },
-        { "<leader>s",  group = "[S]earch" },
-        { "<leader>s_", hidden = true },
-        { "<leader>w",  group = "[W]indow" },
-        { "<leader>w_", hidden = true },
-        { "<leader>o", group = "[O]mnisharp" },
-        { "<leader>o_", hidden = true },
-        { "<leader>e", group = "[E]dit" },
-        { "<leader>e_", hidden = true },
-        { "<leader>l", group = "[L]aunch" },
-        { "<leader>l_", hidden = true },
-        { "<leader>d", group = "[D]otnet" },
-        { "<leader>d_", hidden = true }
-      }
-    end,
-  },
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    opts = {},
+    keys = {
+        {
+            "<leader>?",
+            function()
+                require(
+                    "which-key"
+                ).show(
+                    {
+                        global = false
+                    }
+                )
+            end,
+            desc = "Buffer Local Keymaps (which-key)"
+        }
+    }
 }
-

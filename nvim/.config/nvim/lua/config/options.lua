@@ -3,7 +3,7 @@ vim.g.maplocalleader = " "
 
 vim.g.have_nerd_font = true
 
-vim.opt.guifont = "Monofur Nerd Font Regular:h14"
+vim.opt.guifont = "JetBrainsMono:h14"
 
 vim.opt.number = true
 vim.opt.relativenumber = true

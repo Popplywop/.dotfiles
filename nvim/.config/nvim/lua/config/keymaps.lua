@@ -22,26 +22,7 @@ vim.keymap.set("n", "<leader>wk", "<C-w>k", { desc = "Window Up" })
 vim.keymap.set("n", "<leader>wh", "<C-w>h", { desc = "Window Left" })
 vim.keymap.set("n", "<leader>wl", "<C-w>l", { desc = "Window Right" })
 
--- Floaterm
-vim.keymap.set({ "n", "t" }, "<Esc><Esc>", "<Cmd>FloatermToggle<CR>", { desc = "Toggle Floaterm" })
-vim.keymap.set({ "n", "t" }, "<Esc>l", "<Cmd>FloatermNext<CR>", { desc = "Next Terminal" })
-vim.keymap.set("n", "<leader>lg", "<Cmd>FloatermNew lazygit<CR>", { desc = "Launch lazygit"})
-vim.keymap.set("n", "<leader>lc", "<Cmd>FloatermNew claude<CR>", { desc = "Launch claude"})
-
 -- inlay hints
 vim.keymap.set('n', '<leader>H', function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end, { desc = 'Show inlay hints' })
-
--- Floating quickfix
-local float_qf = require('float-qf')
-vim.keymap.set("n", "<leader>qf", float_qf.open_float_qf, { desc = "Floating Quickfix" })
-vim.keymap.set("n", "<leader>el", float_qf.eslint_changed_files, { desc = "ESLint Changed Files" })
-
--- Dotnet
-local dotnet = require('dotnet')
-vim.keymap.set("n", "<leader>db", dotnet.build, { desc = "Dotnet Build" })
-vim.keymap.set("n", "<leader>dr", dotnet.restore, { desc = "Dotnet Restore" })
-vim.keymap.set("n", "<leader>dp", dotnet.package_add, { desc = "Dotnet Add Package" })
-vim.keymap.set("n", "<leader>de", dotnet.reference_add, { desc = "Dotnet Add Reference" })
-vim.keymap.set("n", "<leader>ds", dotnet.package_search, { desc = "NuGet Search" })

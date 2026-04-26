@@ -1,10 +1,9 @@
+-- Plugin: nvim-lualine/lualine.nvim
+-- Installed via store.nvim
+
 return {
-  {
-    -- status line enhancements
-    "nvim-lualine/lualine.nvim",
-    dependencies = { { "echasnovski/mini.icons", opts = {} } },
-    opts = {
-      options = { theme = "gruvbox" },
-    }
-  },
+  "nvim-lualine/lualine.nvim",
+  opts = {
+    options = { theme = "gruber-darker" }
+  }
 }

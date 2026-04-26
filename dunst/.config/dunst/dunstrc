@@ -1,0 +1,138 @@
+# Dunst config — Gruber Darker theme
+# Matches waybar/wofi visual identity
+
+[global]
+    ### Display ###
+    monitor = 0
+    follow = none
+
+    ### Geometry ###
+    width = 320
+    height = (0, 300)
+    origin = top-right
+    offset = (10, 46)   # aligns just below the 36px waybar + a small gap
+    scale = 0
+    notification_limit = 20
+
+    ### Progress bar ###
+    progress_bar = true
+    progress_bar_height = 10
+    progress_bar_frame_width = 1
+    progress_bar_min_width = 150
+    progress_bar_max_width = 300
+    progress_bar_corner_radius = 5
+    progress_bar_corners = all
+
+    ### Icon rounding ###
+    icon_corner_radius = 4
+    icon_corners = all
+
+    indicate_hidden = yes
+    transparency = 0
+
+    # Gap between stacked notifications (requires compositor)
+    gap_size = 6
+    # separator_height is ignored when gap_size > 0
+    separator_height = 2
+
+    padding = 10
+    horizontal_padding = 12
+    text_icon_padding = 8
+
+    # 2px border — matches wofi/tooltip border weight
+    frame_width = 2
+
+    # Purple border — matches wofi window border and waybar tooltip border
+    frame_color = "#9e95c7"
+
+    separator_color = frame
+
+    sort = yes
+
+    ### Text ###
+    # Monospace Bold — matches waybar/wofi font choice
+    font = Monospace Bold 11
+
+    line_height = 2
+    markup = full
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    vertical_alignment = center
+    show_age_threshold = 60
+    ellipsize = middle
+    ignore_newline = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators = yes
+    enable_posix_regex = true
+
+    ### Icons ###
+    enable_recursive_icon_lookup = true
+    icon_theme = Adwaita
+    icon_position = left
+    min_icon_size = 32
+    max_icon_size = 64
+    icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
+
+    ### History ###
+    sticky_history = yes
+    history_length = 20
+
+    ### Misc ###
+    dmenu = /usr/bin/dmenu -p dunst:
+    browser = /usr/bin/xdg-open
+    always_run_script = true
+    title = Dunst
+    class = Dunst
+
+    # 10px rounded corners — matches wofi window corner radius
+    corner_radius = 10
+    corners = all
+
+    ignore_dbusclose = false
+
+    ### Wayland ###
+    layer = top
+    force_xwayland = false
+
+    ### Mouse ###
+    mouse_left_click = close_current
+    mouse_middle_click = do_action, close_current
+    mouse_right_click = close_all
+
+[experimental]
+    per_monitor_dpi = false
+    pause_on_mouse_over = true
+
+# ---------------------------------------------------------------------------
+# Urgency levels — Gruber Darker palette
+#
+#   background  #181818  (bg_solid — same as waybar bar background)
+#   foreground  #e4e4ef  (foreground — same as waybar text)
+#   low frame   #54494e  (dark_gray — muted, unobtrusive)
+#   normal frame #9e95c7 (purple — default accent, matches wofi border)
+#   critical frame #f43841 (red — matches waybar critical states)
+# ---------------------------------------------------------------------------
+
+[urgency_low]
+    background = "#181818"
+    foreground = "#e4e4ef"
+    frame_color = "#54494e"
+    timeout = 6
+    default_icon = dialog-information
+
+[urgency_normal]
+    background = "#181818"
+    foreground = "#e4e4ef"
+    frame_color = "#9e95c7"
+    timeout = 10
+    override_pause_level = 30
+    default_icon = dialog-information
+
+[urgency_critical]
+    background = "#181818"
+    foreground = "#e4e4ef"
+    frame_color = "#f43841"
+    timeout = 0
+    override_pause_level = 60
+    default_icon = dialog-warning

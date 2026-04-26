@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+# ~/.config/waybar/scripts/clock-tooltip
+# Clock bar module with multi-timezone tooltip
+
+import json
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+CITIES = [
+    ("🇺🇸", "Victoria TX",  "America/Chicago"),
+    ("🇺🇸", "New York",     "America/New_York"),
+    ("🇺🇸", "Los Angeles",  "America/Los_Angeles"),
+    ("🇬🇧", "London",       "Europe/London"),
+    ("🇯🇵", "Tokyo",        "Asia/Tokyo"),
+    ("🇦🇺", "Sydney",       "Australia/Sydney"),
+]
+
+
+def now_in(tz):
+    return datetime.now(ZoneInfo(tz))
+
+
+local = now_in("America/Chicago")
+bar_time = local.strftime("%H:%M")
+date_line = local.strftime("%A %d %B %Y")
+city_lines = "\n".join(
+    f"{flag}  {city:<14} {now_in(tz).strftime('%H:%M')}"
+    for flag, city, tz in CITIES
+)
+tooltip = f"{date_line}\n\n{city_lines}"
+
+print(json.dumps({"text": bar_time, "tooltip": tooltip}, ensure_ascii=False))

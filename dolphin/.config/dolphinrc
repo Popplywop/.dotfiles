@@ -1,0 +1,24 @@
+[General]
+Version=202
+RememberOpenedTabs=true
+ShowFullPathInTitlebar=true
+ShowStatusBar=true
+ShowZoomSlider=false
+SortingChoice=TimeMetadataBased
+
+[KFileDialog Settings]
+Places Icons Auto-resize=false
+Places Icons Static Size=22
+
+[MainWindow]
+MenuBar=Disabled
+ToolBarsMovable=Disabled
+
+[PreviewSettings]
+Plugins=audiothumbnail,imagethumbnail,jpegthumbnail,svgthumbnail,textthumbnail,moviethumbnail,fontthumbnail
+
+[DetailsMode]
+PreviewSize=22
+
+[IconsMode]
+PreviewSize=64

@@ -34,3 +34,5 @@ function yy() {
     fi
     rm -f -- "$tmp"
 }
+
+eval "$(zoxide init bash --cmd cd)"

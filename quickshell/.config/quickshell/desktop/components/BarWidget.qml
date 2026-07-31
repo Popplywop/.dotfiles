@@ -44,6 +44,10 @@ Item {
     property real  popupWidth:  240
     property bool  popupOpen:   false
 
+    // Gauges open on hover; click-driven panels (notification centre) set this
+    // false so they only open on click and stay put.
+    property bool  openOnHover: true
+
     // Usable width inside the popup — children size themselves off this
     readonly property real contentWidth: root.popupWidth - Theme.popupPadding * 2
 
@@ -55,6 +59,11 @@ Item {
     // Keep the popup up (e.g. pointer moved from pill onto the card)
     function holdOpen() { root.popupOpen = true; hideTimer.stop() }
     function releaseOpen() { hideTimer.restart() }
+
+    // Hover entry/exit. With openOnHover false, hovering never opens the popup
+    // and never closes one that a click opened.
+    function _hoverEnter() { if (root.openOnHover) root.holdOpen(); else hideTimer.stop() }
+    function _hoverExit()  { if (root.openOnHover) root.releaseOpen() }
 
     Timer {
         id: hideTimer
@@ -104,8 +113,8 @@ Item {
             hoverEnabled:    true
             acceptedButtons: Qt.LeftButton
             cursorShape:     root.clickable ? Qt.PointingHandCursor : Qt.ArrowCursor
-            onEntered:       root.holdOpen()
-            onExited:        root.releaseOpen()
+            onEntered:       root._hoverEnter()
+            onExited:        root._hoverExit()
             onClicked:       root.clicked()
         }
 
@@ -126,7 +135,7 @@ Item {
         marginRight:  root.anchorRight ? root.popupMargin : 0
         popupWidth:   root.popupWidth
 
-        onPopupEntered: root.holdOpen()
-        onPopupExited:  root.releaseOpen()
+        onPopupEntered: root._hoverEnter()
+        onPopupExited:  root._hoverExit()
     }
 }

@@ -65,6 +65,14 @@ Singleton {
     readonly property int barThin:  6   // progress bar height, small
     readonly property int barThick: 8   // progress bar height, large
 
+    // Notifications
+    readonly property int notifWidth:      380
+    readonly property int notifSpacing:    8
+    readonly property int notifMargin:     10
+    readonly property int notifPadding:    12
+    readonly property int notifIconSize:   40
+    readonly property int notifMaxVisible: 5
+
     // ── Type ───────────────────────────────────────────────────
     readonly property string fontFamily: "monospace"
 

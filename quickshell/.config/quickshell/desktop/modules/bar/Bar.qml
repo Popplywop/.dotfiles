@@ -9,6 +9,7 @@ import QtQuick
 import QtQuick.Layouts
 import "root:/config"
 import "root:/components"
+import "root:/modules/notifications"
 
 PanelWindow {
     id: bar
@@ -79,8 +80,9 @@ PanelWindow {
         RowLayout {
             spacing: Theme.barSpacing
 
-            TrayWidget      {}
-            BatteryWidget   {}
+            TrayWidget         {}
+            NotificationCenter {}
+            BatteryWidget      {}
             VolumeWidget    {}
             BacklightWidget {}
             CpuWidget       {}

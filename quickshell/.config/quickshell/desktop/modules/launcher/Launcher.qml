@@ -187,6 +187,7 @@ Item {
                         required property int  index
 
                         readonly property bool selected: list.currentIndex === row.index
+                        readonly property bool isAction: row.modelData.action !== null
                         readonly property string iconSource:
                             row.modelData.icon !== ""
                                 ? Quickshell.iconPath(row.modelData.icon, true)
@@ -223,21 +224,44 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 1
 
-                            Text {
-                                width:          parent.width
-                                text:           row.modelData.name
-                                font.family:    Theme.fontFamily
-                                font.pixelSize: Theme.fontHeader
-                                font.bold:      row.selected
-                                color:          row.selected ? Theme.fgBright : Theme.textPrimary
-                                elide:          Text.ElideRight
+                            Row {
+                                width:   parent.width
+                                spacing: 6
+
+                                Text {
+                                    text:           row.modelData.label
+                                    font.family:    Theme.fontFamily
+                                    font.pixelSize: Theme.fontHeader
+                                    font.bold:      row.selected
+                                    color:          row.selected ? Theme.fgBright : Theme.textPrimary
+                                    elide:          Text.ElideRight
+                                }
+
+                                // Marks a desktop action so it is not mistaken
+                                // for a separate application
+                                Rectangle {
+                                    visible: row.isAction
+                                    width:   actionTag.implicitWidth + 10
+                                    height:  actionTag.implicitHeight + 2
+                                    radius:  3
+                                    color:   Theme.hoverBg
+                                    anchors.verticalCenter: parent.verticalCenter
+
+                                    Text {
+                                        id: actionTag
+                                        anchors.centerIn: parent
+                                        text:           "action"
+                                        font.family:    Theme.fontFamily
+                                        font.pixelSize: Theme.fontTiny
+                                        color:          Theme.magenta
+                                    }
+                                }
                             }
+
                             Text {
                                 width:          parent.width
                                 visible:        text.length > 0
-                                text:           row.modelData.comment !== ""
-                                              ? row.modelData.comment
-                                              : (row.modelData.genericName || "")
+                                text:           row.modelData.sublabel
                                 font.family:    Theme.fontFamily
                                 font.pixelSize: Theme.fontSmall
                                 color:          Theme.textSecondary

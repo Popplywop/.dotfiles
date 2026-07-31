@@ -103,47 +103,90 @@ Singleton {
         return f > 0 ? f : -1
     }
 
+    // Frecency key: apps by id, actions by "id:actionId" so "New Incognito
+    // Window" can outrank plain Chromium if that is what you actually use.
+    function keyFor(entry, action) {
+        return action ? entry.id + ":" + action.id : entry.id
+    }
+
+    // Results are wrappers, not raw entries, so an app and its desktop actions
+    // ("New Window", "Play-Pause") can sit side by side in one list.
+    function _result(entry, action) {
+        return {
+            entry:    entry,
+            action:   action || null,
+            key:      root.keyFor(entry, action),
+            label:    action ? action.name : entry.name,
+            sublabel: action ? entry.name
+                             : (entry.comment !== "" ? entry.comment : (entry.genericName || "")),
+            icon:     (action && action.icon) ? action.icon : entry.icon,
+        }
+    }
+
     function search(query) {
         const q = (query || "").trim().toLowerCase()
-
         const all = root.entries()
 
         if (q === "") {
-            // No query: most-used first, then alphabetical
-            return all.slice().sort((a, b) => {
-                const d = root.frecencyBoost(b.id) - root.frecencyBoost(a.id)
-                return d !== 0 ? d : a.name.localeCompare(b.name)
-            })
+            // No query: apps only, most-used first, then alphabetical
+            return all.slice()
+                .sort((a, b) => {
+                    const d = root.frecencyBoost(b.id) - root.frecencyBoost(a.id)
+                    return d !== 0 ? d : a.name.localeCompare(b.name)
+                })
+                .map(e => root._result(e, null))
         }
 
-        return all
-            .map(e => ({ entry: e, score: root._score(e, q) }))
-            .filter(r => r.score >= 0)
-            .sort((a, b) => (b.score + root.frecencyBoost(b.entry.id) * 20)
-                          - (a.score + root.frecencyBoost(a.entry.id) * 20))
-            .map(r => r.entry)
+        const scored = []
+
+        for (const e of all) {
+            const s = root._score(e, q)
+            if (s >= 0) scored.push({ res: root._result(e, null), score: s })
+
+            // An action matches on its own name or on "app action" together,
+            // so both "incognito" and "chromium incog" find it.
+            for (const a of e.actions) {
+                const an = a.name.toLowerCase()
+                const combined = (e.name + " " + a.name).toLowerCase()
+
+                let as = -1
+                if (an === q)                as = 9500
+                else if (an.startsWith(q))   as = 8500 - an.length
+                else if (an.includes(q))     as = 5500 - an.length
+                else if (combined.includes(q)) as = 4500
+                else {
+                    const f = root._fuzzy(combined, q)
+                    if (f > 0) as = f * 0.8      // rank under a direct app hit
+                }
+
+                if (as >= 0) scored.push({ res: root._result(e, a), score: as })
+            }
+        }
+
+        return scored
+            .sort((x, y) => (y.score + root.frecencyBoost(y.res.key) * 20)
+                          - (x.score + root.frecencyBoost(x.res.key) * 20))
+            .map(r => r.res)
     }
 
     // ── Launching ──────────────────────────────────────────────
     // uwsm app puts each application in its own systemd scope, matching how
     // the rest of this session launches things.
-    function launch(entry) {
-        if (!entry) return
+    // Takes a result from search(). uwsm addresses an action as
+    // "<id>.desktop:<actionId>".
+    function launch(result) {
+        if (!result || !result.entry) return
 
-        const prev = root.frecency[entry.id] || { count: 0, last: 0 }
-        root.frecency[entry.id] = { count: prev.count + 1, last: Date.now() }
+        const key = result.key
+        const prev = root.frecency[key] || { count: 0, last: 0 }
+        root.frecency[key] = { count: prev.count + 1, last: Date.now() }
         root.frecency = root.frecency        // reassign so bindings re-evaluate
         root._persist()
 
-        Quickshell.execDetached({
-            command: ["uwsm", "app", "--", entry.id + ".desktop"]
-        })
-    }
+        const target = result.action
+            ? result.entry.id + ".desktop:" + result.action.id
+            : result.entry.id + ".desktop"
 
-    function launchAction(entry, action) {
-        if (!entry || !action) return
-        Quickshell.execDetached({
-            command: ["uwsm", "app", "--", entry.id + ".desktop:" + action.id]
-        })
+        Quickshell.execDetached({ command: ["uwsm", "app", "--", target] })
     }
 }

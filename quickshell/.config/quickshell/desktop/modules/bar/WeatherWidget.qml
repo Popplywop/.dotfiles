@@ -1,6 +1,5 @@
 // modules/bar/WeatherWidget.qml
 // Weather via Open-Meteo (Victoria TX). Hover → forecast.
-// NOTE: still calls the waybar-era script; see wttrScript below.
 
 import Quickshell
 import Quickshell.Io
@@ -11,7 +10,7 @@ import "root:/components"
 BarWidget {
     id: root
 
-    readonly property string wttrScript: Quickshell.env("HOME") + "/.config/waybar/scripts/wttr.py"
+    readonly property string wttrScript: Quickshell.shellPath("scripts/wttr.py")
 
     property string barText:     " ?"
     property string tooltipText: "Loading…"

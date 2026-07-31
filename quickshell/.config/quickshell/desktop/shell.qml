@@ -13,6 +13,7 @@ import QtQuick
 import "root:/modules/bar"
 import "root:/modules/launcher"
 import "root:/modules/notifications"
+import "root:/modules/osd"
 import "root:/modules/wallpicker"
 import "root:/services"
 
@@ -25,6 +26,8 @@ ShellRoot {
     }
 
     NotificationPopups {}
+
+    Osd { id: osd }
 
     Launcher { id: launcher }
 
@@ -44,6 +47,17 @@ ShellRoot {
         function toggle(): void { wallPicker.toggle() }
         function open():   void { wallPicker.show()   }
         function close():  void { wallPicker.cancel() }
+    }
+
+    // Brightness has no change notification of its own, so the hyprland
+    // brightness keys route through here instead of calling brightnessctl.
+    IpcHandler {
+        target: "osd"
+
+        function brightnessUp():   void { Brightness.change(5);  osd.showBrightness() }
+        function brightnessDown(): void { Brightness.change(-5); osd.showBrightness() }
+        function brightness(pct: int): void { Brightness.set(pct); osd.showBrightness() }
+        function showVolume():     void { osd.showVolume() }
     }
 
     IpcHandler {

@@ -65,6 +65,12 @@ Singleton {
     readonly property int barThin:  6   // progress bar height, small
     readonly property int barThick: 8   // progress bar height, large
 
+    // OSD
+    readonly property int osdWidth:      280
+    readonly property int osdHeight:     96
+    readonly property int osdBottomGap:  120
+    readonly property int osdTimeout:    1600
+
     // Launcher
     readonly property int launcherWidth:     640
     readonly property int launcherMaxHeight: 420

@@ -9,17 +9,34 @@
 
 import Quickshell
 import Quickshell.Io
+import QtQuick
 import "root:/modules/bar"
+import "root:/modules/launcher"
 import "root:/modules/notifications"
 import "root:/modules/wallpicker"
 import "root:/services"
 
 ShellRoot {
-    Bar {}
+    // Start the desktop-entry scan now instead of on first launcher open
+    Component.onCompleted: Apps.warm()
+
+    Bar {
+        onLauncherRequested: launcher.toggle()
+    }
 
     NotificationPopups {}
 
+    Launcher { id: launcher }
+
     WallPicker { id: wallPicker }
+
+    IpcHandler {
+        target: "launcher"
+
+        function toggle(): void { launcher.toggle() }
+        function open():   void { launcher.show()   }
+        function close():  void { launcher.hide()   }
+    }
 
     IpcHandler {
         target: "wallpicker"

@@ -14,6 +14,9 @@ import "root:/modules/notifications"
 PanelWindow {
     id: bar
 
+    // shell.qml wires this to the launcher
+    signal launcherRequested()
+
     WlrLayershell.namespace: "qs-bar"
     WlrLayershell.layer:     WlrLayer.Top
 
@@ -34,18 +37,10 @@ PanelWindow {
         RowLayout {
             spacing: Theme.barSpacing
 
-            // TODO(phase 2): replace wofi with a native quickshell launcher
             BarPill {
                 label:      "󱓞"
                 labelColor: Theme.blue
-                onClicked:  launchProc.running = true
-
-                Process {
-                    id: launchProc
-                    command: ["wofi", "--show", "drun"]
-                    running: false
-                    onExited: running = false
-                }
+                onClicked:  bar.launcherRequested()
             }
 
             WeatherWidget {}

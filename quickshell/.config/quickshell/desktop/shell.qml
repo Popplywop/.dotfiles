@@ -22,12 +22,16 @@ ShellRoot {
     Component.onCompleted: Apps.warm()
 
     Bar {
+        id: bar
         onLauncherRequested: launcher.toggle()
     }
 
     NotificationPopups {}
 
-    Osd { id: osd }
+    Osd {
+        id: osd
+        suppressed: bar.controlCentreOpen
+    }
 
     Launcher { id: launcher }
 
@@ -51,6 +55,13 @@ ShellRoot {
 
     // Brightness has no change notification of its own, so the hyprland
     // brightness keys route through here instead of calling brightnessctl.
+    IpcHandler {
+        target: "controlcenter"
+
+        function toggle(): void { bar.toggleControlCentre() }
+        function close():  void { bar.closeControlCentre()  }
+    }
+
     IpcHandler {
         target: "osd"
 

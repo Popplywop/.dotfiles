@@ -9,6 +9,7 @@ import QtQuick
 import QtQuick.Layouts
 import "root:/config"
 import "root:/components"
+import "root:/modules/controlcenter"
 import "root:/modules/notifications"
 
 PanelWindow {
@@ -16,6 +17,13 @@ PanelWindow {
 
     // shell.qml wires this to the launcher
     signal launcherRequested()
+
+    // True while the control centre is open, so the OSD can stay out of the
+    // way when its own sliders are being dragged
+    property bool controlCentreOpen: false
+
+    function toggleControlCentre() { controlCenter.popupOpen = !controlCenter.popupOpen }
+    function closeControlCentre()  { controlCenter.popupOpen = false }
 
     WlrLayershell.namespace: "qs-bar"
     WlrLayershell.layer:     WlrLayer.Top
@@ -77,6 +85,10 @@ PanelWindow {
 
             TrayWidget         {}
             NotificationCenter {}
+            ControlCenter {
+                id: controlCenter
+                onOpenedChanged: open => bar.controlCentreOpen = open
+            }
             BatteryWidget      {}
             VolumeWidget    {}
             BacklightWidget {}

@@ -26,9 +26,23 @@ Singleton {
     property real   netRx:     0    // KiB/s
     property real   netTx:     0
 
-    property int    updates:   0
-    property int    updatesOfficial: 0
-    property int    updatesAur:      0
+    // Updates. `ok` distinguishes "nothing pending" from "the check failed",
+    // which the old count-only version could not: any failure came back as 0
+    // and rendered as "System up to date".
+    property var  repoUpdates:  []
+    property var  aurUpdates:   []
+    property bool updatesOk:    true
+    property var  updatesErrors: []
+
+    // The AUR query can take a minute. Until the first result lands the counts
+    // are just initial values, and rendering them as "up to date" would be the
+    // same false reassurance the old silent-zero produced.
+    property bool updatesChecked: false
+    readonly property bool updatesBusy: updProc.running
+
+    readonly property int updates:         repoUpdates.length + aurUpdates.length
+    readonly property int updatesOfficial: repoUpdates.length
+    readonly property int updatesAur:      aurUpdates.length
 
     // History for the sparklines
     signal sampled(int cpu, int mem, real rx, real tx)
@@ -119,27 +133,33 @@ while True:
     }
 
     // ── Updates ────────────────────────────────────────────────
+    // Every run makes checkupdates sync a temporary package database over the
+    // network, so this is deliberately infrequent. refreshUpdates() covers the
+    // "I want to know now" case.
     Timer {
-        interval: 300000; repeat: true; running: true; triggeredOnStart: true
-        onTriggered: if (!updProc.running) updProc.running = true
+        interval: 1800000; repeat: true; running: true; triggeredOnStart: true
+        onTriggered: root.refreshUpdates()
+    }
+
+    function refreshUpdates() {
+        if (!updProc.running) updProc.running = true
     }
 
     Process {
         id: updProc
-        command: ["bash", "-c",
-            "O=$(checkupdates 2>/dev/null | wc -l); " +
-            "A=$(yay -Qteu 2>/dev/null | wc -l); " +
-            "echo \"$((O+A)) $O $A\""]
+        command: [Quickshell.shellPath("scripts/check-updates")]
         running: false
         onExited: running = false
         stdout: SplitParser {
             onRead: line => {
-                const p = line.trim().split(" ")
-                if (p.length >= 3) {
-                    root.updates         = parseInt(p[0]) || 0
-                    root.updatesOfficial = parseInt(p[1]) || 0
-                    root.updatesAur      = parseInt(p[2]) || 0
-                }
+                try {
+                    const d = JSON.parse(line.trim())
+                    root.repoUpdates   = d.repo   || []
+                    root.aurUpdates    = d.aur    || []
+                    root.updatesErrors = d.errors || []
+                    root.updatesOk     = d.ok
+                    root.updatesChecked = true
+                } catch (e) {}
             }
         }
     }

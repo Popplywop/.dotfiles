@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+"""Report pending repo and AUR updates as JSON.
+
+Replaces the old `checkupdates | wc -l` + `yay -Qteu | wc -l` pair, which had
+two problems:
+
+  * -Qteu filters to explicit AND unrequired packages, so any AUR package that
+    is a dependency of something else was invisible. -Qua is the query that
+    actually means "AUR packages with updates".
+  * Both counts were piped through `2>/dev/null | wc -l`, so a failure — no
+    network, a held pacman lock, checkupdates missing — produced 0 and
+    rendered as "System up to date". A silent false negative on the one
+    widget whose whole job is telling you that you are behind.
+
+Names are reported, not just counts, so the caller can show what is pending
+and mark AUR entries as needing review before they are built.
+"""
+
+import json
+import re
+import shutil
+import subprocess
+import sys
+
+# "name 1.2.3-1 -> 1.2.4-1" with an optional trailing "[3d2h]" from yay
+LINE = re.compile(r"^(\S+)\s+(\S+)\s+->\s+(\S+)")
+
+
+def parse(text):
+    out = []
+    for line in text.splitlines():
+        m = LINE.match(line.strip())
+        if m:
+            out.append({"name": m.group(1), "old": m.group(2), "new": m.group(3)})
+    return out
+
+
+def repo_updates():
+    """checkupdates exits 0 with updates, 2 when there are none, 1 on error."""
+    if not shutil.which("checkupdates"):
+        return [], "checkupdates missing (install pacman-contrib)"
+    p = subprocess.run(["checkupdates"], capture_output=True, text=True)
+    if p.returncode == 2:
+        return [], None
+    if p.returncode != 0:
+        return [], (p.stderr.strip() or "checkupdates failed").splitlines()[-1]
+    return parse(p.stdout), None
+
+
+def aur_updates():
+    helper = next((h for h in ("paru", "yay") if shutil.which(h)), None)
+    if not helper:
+        return [], "no AUR helper found"
+    # -Qua: installed AUR packages with a newer version available. Unlike
+    # -Qteu it does not drop packages that other packages depend on.
+    p = subprocess.run([helper, "-Qua"], capture_output=True, text=True)
+    items = parse(p.stdout)
+    # Helpers exit non-zero when there is simply nothing to do, so only treat
+    # it as an error when we also got nothing parseable and something on stderr.
+    if p.returncode != 0 and not items and p.stderr.strip():
+        return [], p.stderr.strip().splitlines()[-1]
+    return items, None
+
+
+def main():
+    repo, repo_err = repo_updates()
+    aur, aur_err = aur_updates()
+    errors = [e for e in (repo_err, aur_err) if e]
+
+    print(json.dumps({
+        "ok": not errors,
+        "total": len(repo) + len(aur),
+        "repo": repo,
+        "aur": aur,
+        "errors": errors,
+    }))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

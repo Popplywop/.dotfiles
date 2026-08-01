@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""Audit installed AUR packages for supply-chain risk signals.
+
+Reads the foreign package list from pacman, asks the AUR RPC about each one,
+and reports the things that actually matter when a package goes bad:
+
+  orphaned        no maintainer, so nobody is vetting changes
+  out-of-date     flagged stale upstream; may be missing security fixes
+  unvetted        very few votes, so few eyes on the PKGBUILD
+  vcs             -git/-svn/-hg build whatever is at upstream HEAD right now
+  binary          -bin ships a prebuilt blob; the PKGBUILD is not the payload
+  new             recently first-submitted, little track record
+  churn           modified very recently, worth reading the diff before building
+
+Exit status is 0 when nothing scores high, 1 otherwise, so it can gate an
+update run.
+
+Usage:
+  aur-audit                 human readable report
+  aur-audit --json          machine readable
+  aur-audit --quiet         only the summary line
+"""
+
+import json
+import subprocess
+import sys
+import time
+import urllib.parse
+import urllib.request
+
+RPC = "https://aur.archlinux.org/rpc/v5/info"
+NOW = time.time()
+DAY = 86400
+
+# Risk weights. Tuned so a single strong signal (orphaned, out-of-date)
+# surfaces on its own, while soft signals need to stack up.
+HIGH, MED, LOW = 3, 2, 1
+
+
+def foreign_packages():
+    """Installed packages pacman cannot find in any sync repo."""
+    out = subprocess.run(["pacman", "-Qm"], capture_output=True, text=True)
+    if out.returncode != 0:
+        sys.exit("pacman -Qm failed")
+    return dict(line.split() for line in out.stdout.strip().splitlines() if line)
+
+
+def aur_info(names):
+    if not names:
+        return {}
+    q = "&".join("arg[]=" + urllib.parse.quote(n) for n in names)
+    try:
+        with urllib.request.urlopen(f"{RPC}?{q}", timeout=20) as r:
+            data = json.load(r)
+    except Exception as e:  # noqa: BLE001 - report and continue offline
+        print(f"warning: AUR lookup failed ({e})", file=sys.stderr)
+        return {}
+    return {p["Name"]: p for p in data.get("results", [])}
+
+
+def assess(name, version, info, installed):
+    """Return (score, [(level, tag, detail)])."""
+    findings = []
+
+    if info is None:
+        # makepkg emits foo-debug alongside foo; it is generated locally from
+        # the same PKGBUILD and never exists in the AUR on its own.
+        base = name[: -len("-debug")]
+        if name.endswith("-debug") and base in installed:
+            return 0, [(0, "derived", f"debug symbols split from {base}")][:0]
+        findings.append((MED, "not-in-aur",
+                         "not found in the AUR — locally built, renamed, or removed upstream"))
+        return MED, findings
+
+    if not info.get("Maintainer"):
+        findings.append((HIGH, "orphaned",
+                         "no maintainer; nobody is reviewing submitted changes"))
+
+    ood = info.get("OutOfDate")
+    if ood:
+        days = int((NOW - ood) / DAY)
+        findings.append((HIGH if days > 90 else MED, "out-of-date",
+                         f"flagged out of date {days}d ago"))
+
+    votes = info.get("NumVotes", 0)
+    if votes < 10:
+        findings.append((MED, "unvetted", f"only {votes} votes; few eyes on the PKGBUILD"))
+    elif votes < 50:
+        findings.append((LOW, "low-votes", f"{votes} votes"))
+
+    if name.endswith(("-git", "-svn", "-hg", "-bzr")):
+        findings.append((MED, "vcs",
+                         "builds from upstream HEAD; no pinned commit, content changes without a version bump"))
+
+    if name.endswith("-bin"):
+        findings.append((MED, "binary",
+                         "ships a prebuilt binary; reviewing the PKGBUILD does not show you the payload"))
+
+    sub = info.get("FirstSubmitted")
+    if sub and (NOW - sub) < 90 * DAY:
+        findings.append((MED, "new", f"first submitted {int((NOW - sub) / DAY)}d ago"))
+
+    mod = info.get("LastModified")
+    if mod and (NOW - mod) < 7 * DAY:
+        findings.append((LOW, "churn",
+                         f"PKGBUILD changed {int((NOW - mod) / DAY)}d ago; read the diff before building"))
+
+    return sum(f[0] for f in findings), findings
+
+
+LEVEL_NAME = {HIGH: "HIGH", MED: "MED ", LOW: "low "}
+
+
+def main():
+    args = sys.argv[1:]
+    as_json = "--json" in args
+    quiet = "--quiet" in args
+
+    pkgs = foreign_packages()
+    info = aur_info(list(pkgs))
+
+    rows = []
+    for name, version in sorted(pkgs.items()):
+        score, findings = assess(name, version, info.get(name), pkgs)
+        rows.append({
+            "name": name,
+            "version": version,
+            "score": score,
+            "maintainer": (info.get(name) or {}).get("Maintainer"),
+            "votes": (info.get(name) or {}).get("NumVotes"),
+            "findings": [{"level": LEVEL_NAME[l].strip(), "tag": t, "detail": d}
+                         for l, t, d in findings],
+        })
+
+    rows.sort(key=lambda r: -r["score"])
+    worst = rows[0]["score"] if rows else 0
+
+    if as_json:
+        print(json.dumps({"packages": rows, "worst": worst}, indent=2))
+        return 0 if worst < HIGH else 1
+
+    flagged = [r for r in rows if r["findings"]]
+    if not quiet:
+        print(f"{len(pkgs)} foreign package(s) installed\n")
+        for r in rows:
+            head = f"  {r['name']:<26} {r['version']}"
+            if not r["findings"]:
+                print(f"{head}\n      clean  (maintainer {r['maintainer']}, {r['votes']} votes)")
+                continue
+            print(head)
+            for f in r["findings"]:
+                print(f"      {f['level']:<5} {f['tag']:<12} {f['detail']}")
+            print()
+
+    high = sum(1 for r in rows for f in r["findings"] if f["level"] == "HIGH")
+    print(f"summary: {len(pkgs)} packages, {len(flagged)} with findings, {high} high-severity")
+    return 0 if high == 0 else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -190,29 +190,48 @@ SlidePanel {
             text:           ""
             font.family:    Theme.fontFamily
             font.pixelSize: Theme.fontIcon
-            color:          SysInfo.updates > 0 ? Theme.accent : Theme.textMuted
+            opacity:        SysInfo.updatesBusy ? 0.45 : 1.0
+            color:          !SysInfo.updatesChecked ? Theme.textMuted
+                          : !SysInfo.updatesOk      ? Theme.danger
+                          : SysInfo.updates > 0     ? Theme.accent
+                          : Theme.textMuted
+
+            Behavior on opacity { NumberAnimation { duration: Theme.animNormal } }
         }
 
         Column {
             anchors.left:           updIcon.right
             anchors.leftMargin:     12
+            anchors.right:          parent.right
+            anchors.rightMargin:    6
             anchors.verticalCenter: parent.verticalCenter
             spacing: 2
 
             Text {
-                text: SysInfo.updates + " update" + (SysInfo.updates !== 1 ? "s" : "")
+                text: !SysInfo.updatesChecked ? "Checking for updates…"
+                    : !SysInfo.updatesOk      ? "Update check failed"
+                    : SysInfo.updates + " update" + (SysInfo.updates !== 1 ? "s" : "")
                 font.family:    Theme.fontFamily
                 font.pixelSize: Theme.fontBody
                 font.bold:      true
-                color:          SysInfo.updates > 0 ? Theme.accent : Theme.textPrimary
+                color:          !SysInfo.updatesChecked ? Theme.textSecondary
+                              : !SysInfo.updatesOk      ? Theme.danger
+                              : SysInfo.updates > 0     ? Theme.accent
+                              : Theme.textPrimary
             }
             Text {
-                text: SysInfo.updates > 0
-                    ? SysInfo.updatesOfficial + " official · " + SysInfo.updatesAur + " AUR"
-                    : "System up to date"
+                width: parent.width
+                text: !SysInfo.updatesChecked
+                    ? "querying repos and AUR"
+                    : !SysInfo.updatesOk
+                        ? (SysInfo.updatesErrors[0] || "unknown error")
+                        : SysInfo.updates > 0
+                            ? SysInfo.updatesOfficial + " repo · " + SysInfo.updatesAur + " AUR"
+                            : "System up to date"
                 font.family:    Theme.fontFamily
                 font.pixelSize: Theme.fontTiny
                 color:          Theme.textMuted
+                elide:          Text.ElideRight
             }
         }
 
@@ -220,10 +239,78 @@ SlidePanel {
             id: updHov
             anchors.fill: parent
             hoverEnabled: true
-            cursorShape:  SysInfo.updates > 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
-            onClicked: if (SysInfo.updates > 0) {
-                SysInfo.runUpdates()
-                root.hide()
+            cursorShape:  Qt.PointingHandCursor
+            // A failed check retries rather than launching an upgrade against
+            // results we do not trust.
+            onClicked: {
+                if (!SysInfo.updatesOk) { SysInfo.refreshUpdates(); return }
+                if (SysInfo.updates > 0) { SysInfo.runUpdates(); root.hide() }
+            }
+        }
+    }
+
+    // ── Pending packages ───────────────────────────────────────
+    Repeater {
+        model: SysInfo.updatesOk
+            ? SysInfo.repoUpdates.map(u => ({ u: u, aur: false }))
+                .concat(SysInfo.aurUpdates.map(u => ({ u: u, aur: true })))
+                .slice(0, 12)
+            : []
+
+        delegate: Item {
+            id: upd
+
+            required property var modelData
+
+            // parent is the panel's content Column; SlidePanel exposes no
+            // contentWidth, so asking root for one silently gave 0 width.
+            width:  parent ? parent.width : 0
+            height: 26
+
+            Text {
+                id: updName
+                anchors.left:           parent.left
+                anchors.leftMargin:     6
+                anchors.verticalCenter: parent.verticalCenter
+                text:           upd.modelData.u.name
+                font.family:    Theme.fontFamily
+                font.pixelSize: Theme.fontSmall
+                color:          Theme.textPrimary
+            }
+
+            // AUR packages build arbitrary code from a PKGBUILD, so they are
+            // called out rather than blended in with signed repo packages.
+            Rectangle {
+                visible: upd.modelData.aur
+                anchors.left:           updName.right
+                anchors.leftMargin:     6
+                anchors.verticalCenter: parent.verticalCenter
+                width:   aurLabel.implicitWidth + 8
+                height:  14
+                radius:  3
+                color:   Theme.hoverAccent
+
+                Text {
+                    id: aurLabel
+                    anchors.centerIn: parent
+                    text:           "AUR"
+                    font.family:    Theme.fontFamily
+                    font.pixelSize: Theme.fontTiny
+                    color:          Theme.accent
+                }
+            }
+
+            Text {
+                anchors.right:          parent.right
+                anchors.rightMargin:    6
+                anchors.verticalCenter: parent.verticalCenter
+                width:          120
+                text:           upd.modelData.u.new
+                font.family:    Theme.fontFamily
+                font.pixelSize: Theme.fontTiny
+                color:          Theme.textMuted
+                elide:          Text.ElideLeft
+                horizontalAlignment: Text.AlignRight
             }
         }
     }

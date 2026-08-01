@@ -30,7 +30,7 @@ Item {
     Timer {
         id: hideTimer
         interval: 400
-        onTriggered: if (!hover.containsMouse) root.hide()
+        onTriggered: if (!hover.hovered) root.hide()
     }
 
     PanelWindow {
@@ -53,6 +53,20 @@ Item {
 
         implicitWidth: Theme.panelWidth + Theme.panelMargin * 2
         color:         "transparent"
+
+        // Covers the whole window rather than just the card, so a panel opened
+        // by keybind or hot corner — where the pointer sits in the margin and
+        // never touches the card — still knows when you leave.
+        //
+        // HoverHandler rather than MouseArea: it does not consume events, so
+        // the sliders and buttons inside keep their own hover states.
+        HoverHandler {
+            id: hover
+            onHoveredChanged: {
+                if (hovered) hideTimer.stop()
+                else         root.requestHide()
+            }
+        }
 
         Rectangle {
             id: card
@@ -84,16 +98,6 @@ Item {
                     duration: Theme.panelSlide
                     easing.type: Easing.OutCubic
                 }
-            }
-
-            MouseArea {
-                id: hover
-                anchors.fill: parent
-                hoverEnabled: true
-                onExited:     root.requestHide()
-                onEntered:    hideTimer.stop()
-                // Let children handle their own clicks
-                acceptedButtons: Qt.NoButton
             }
 
             Keys.onEscapePressed: root.hide()

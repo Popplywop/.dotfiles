@@ -73,7 +73,10 @@ Singleton {
     readonly property int dockBottomMargin: 10
     readonly property int dockPadding:      8
     readonly property int dockSpacing:      6
-    readonly property int dockRevealHeight: 2     // hover strip at the screen edge
+    readonly property int dockRevealHeight: 3     // hover strip at the screen edge
+    // Fixed, not derived from the dock's width: the dock window is unmapped
+    // while hidden, so its card reports a stale near-zero width at startup.
+    readonly property int dockRevealWidth:  560
     readonly property int dockHideDelay:    450
     readonly property int dockSlide:        220   // show/hide animation
 

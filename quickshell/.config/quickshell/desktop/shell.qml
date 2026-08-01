@@ -47,6 +47,12 @@ ShellRoot {
         onTriggered: dashboard.show()
     }
 
+    HotCorner {
+        atTop:  true
+        atLeft: false
+        onTriggered: quickPanel.show()
+    }
+
     DashboardPanel { id: dashboard }
 
     QuickPanel {

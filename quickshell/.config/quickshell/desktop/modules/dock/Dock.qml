@@ -21,16 +21,27 @@ Item {
 
     property bool revealed: false
 
-    // Held open while the pointer is over the dock, or a menu is up
-    property bool _pointerInside: false
+    // Tracked separately: the pointer can be over the edge strip, over the
+    // dock itself, or over both as the dock slides up through the strip.
+    property bool _overStrip: false
+    property bool _overDock:  false
 
-    function show() { root.revealed = true;  hideTimer.stop() }
-    function requestHide() { hideTimer.restart() }
+    // Every enter/exit funnels through here. Relying on the dock card's exit
+    // alone left the dock stuck open forever whenever it was revealed at a
+    // point the card does not cover.
+    function updateHover() {
+        if (root._overStrip || root._overDock) {
+            root.revealed = true
+            hideTimer.stop()
+        } else {
+            hideTimer.restart()
+        }
+    }
 
     Timer {
         id: hideTimer
         interval: Theme.dockHideDelay
-        onTriggered: if (!root._pointerInside) root.revealed = false
+        onTriggered: if (!root._overStrip && !root._overDock) root.revealed = false
     }
 
     // DesktopEntries scans asynchronously and byId() returns null until it
@@ -52,17 +63,20 @@ Item {
         // Floating chrome: never reserve space, windows go underneath
         exclusionMode: ExclusionMode.Ignore
 
+        // Only anchored to the bottom, so the compositor centres it. A
+        // full-width strip meant brushing the bottom edge anywhere on screen
+        // popped the dock, even far from where it actually sits.
         anchors.bottom: true
-        anchors.left:   true
-        anchors.right:  true
 
+        implicitWidth:  Theme.dockRevealWidth
         implicitHeight: Theme.dockRevealHeight
         color:          "transparent"
 
         MouseArea {
             anchors.fill: parent
             hoverEnabled: true
-            onEntered:    root.show()
+            onEntered: { root._overStrip = true;  root.updateHover() }
+            onExited:  { root._overStrip = false; root.updateHover() }
         }
     }
 
@@ -113,8 +127,8 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
-                onEntered: { root._pointerInside = true;  root.show() }
-                onExited:  { root._pointerInside = false; root.requestHide() }
+                onEntered: { root._overDock = true;  root.updateHover() }
+                onExited:  { root._overDock = false; root.updateHover() }
             }
 
             Row {

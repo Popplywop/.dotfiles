@@ -2,3 +2,4 @@ singleton Apps       1.0 Apps.qml
 singleton Audio      1.0 Audio.qml
 singleton Brightness 1.0 Brightness.qml
 singleton Notifs     1.0 Notifs.qml
+singleton SysInfo    1.0 SysInfo.qml

@@ -15,11 +15,13 @@ PanelWindow {
 
     WlrLayershell.layer:         WlrLayer.Overlay
     WlrLayershell.namespace:     "qs-notifications"
+    // Floating chrome: never reserve space, windows go underneath
+    exclusionMode: ExclusionMode.Ignore
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
     anchors.top:   true
     anchors.right: true
-    margins.top:   Theme.barHeight + Theme.notifMargin
+    margins.top:   Theme.islandTopMargin + Theme.notifMargin
     margins.right: Theme.notifMargin
 
     implicitWidth:  Theme.notifWidth

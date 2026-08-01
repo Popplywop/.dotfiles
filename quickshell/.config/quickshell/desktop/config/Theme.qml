@@ -22,8 +22,10 @@ Singleton {
     readonly property color dim:     "#54494e"
 
     // ── Semantic colours ───────────────────────────────────────
-    readonly property color barBg:         "#181818"
     readonly property color popupBg:       "#ee181818"
+    // Panels are large and text-dense; popupBg's 93% lets window content bleed
+    // through enough to hurt legibility at that size.
+    readonly property color panelBg:       "#fa181818"
     readonly property color popupBorder:   magenta
 
     readonly property color textPrimary:   fg
@@ -50,13 +52,6 @@ Singleton {
     readonly property color hoverFg:        "#33e4e4ef"
 
     // ── Metrics ────────────────────────────────────────────────
-    readonly property int barHeight:    36
-    readonly property int pillHeight:   28
-    readonly property int pillRadius:   5
-    readonly property int pillPadding:  14   // total horizontal padding
-    readonly property int barMargin:    6
-    readonly property int barSpacing:   2
-
     readonly property int popupRadius:      12
     readonly property int popupBorderWidth: 2
     readonly property int popupPadding:     12
@@ -64,6 +59,30 @@ Singleton {
 
     readonly property int barThin:  6   // progress bar height, small
     readonly property int barThick: 8   // progress bar height, large
+
+    // Island — floating status pill, top centre
+    readonly property int islandHeight:    30
+    readonly property int islandRadius:    15
+    readonly property int islandTopMargin: 8
+    readonly property int islandPaddingH:  14
+    readonly property int islandSpacing:   12
+
+    // Dock — floating, auto-hiding, bottom centre
+    readonly property int dockIconSize:     44
+    readonly property int dockRadius:       18
+    readonly property int dockBottomMargin: 10
+    readonly property int dockPadding:      8
+    readonly property int dockSpacing:      6
+    readonly property int dockRevealHeight: 2     // hover strip at the screen edge
+    readonly property int dockHideDelay:    450
+    readonly property int dockSlide:        220   // show/hide animation
+
+    // Slide-out panels
+    readonly property int panelWidth:   340
+    readonly property int panelMargin:   10
+    readonly property int panelRadius:   16
+    readonly property int panelSlide:   200
+    readonly property int hotCornerSize: 16
 
     // OSD
     readonly property int osdWidth:      280

@@ -2,47 +2,94 @@
 // Entry point for the whole desktop shell.
 //   qs -c desktop
 //
-// Everything lives in one instance so components share Theme and state.
-// External triggers (keybinds, scripts) arrive over IPC:
+// No bar. Chrome is a floating status island (top centre), an auto-hiding
+// floating dock (bottom centre), and two edge flyouts:
+//   left  — system dashboard, upper-left hot corner
+//   right — quick settings, media, network and notifications
+//
+// External triggers arrive over IPC:
+//   qs -c desktop ipc call launcher   toggle
+//   qs -c desktop ipc call panel      left|right
 //   qs -c desktop ipc call wallpicker toggle
-//   qs -c desktop ipc call notifs dnd
+//   qs -c desktop ipc call osd        brightnessUp|brightnessDown
 
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import "root:/modules/bar"
+import "root:/components"
+import "root:/modules/dock"
+import "root:/modules/island"
 import "root:/modules/launcher"
 import "root:/modules/notifications"
 import "root:/modules/osd"
+import "root:/modules/panels"
 import "root:/modules/wallpicker"
 import "root:/services"
 
 ShellRoot {
+    id: shell
+
     // Start the desktop-entry scan now instead of on first launcher open
     Component.onCompleted: Apps.warm()
 
-    Bar {
-        id: bar
-        onLauncherRequested: launcher.toggle()
+    // ── Chrome ─────────────────────────────────────────────────
+    Island {
+        onNotificationsRequested: quickPanel.toggle()
+        onQuickSettingsRequested: quickPanel.toggle()
     }
 
+    Dock {}
+
+    // ── Flyouts ────────────────────────────────────────────────
+    HotCorner {
+        atTop:  true
+        atLeft: true
+        onTriggered: dashboard.show()
+    }
+
+    DashboardPanel { id: dashboard }
+
+    QuickPanel {
+        id: quickPanel
+
+        onPowerRequested: action => {
+            switch (action) {
+            case "lock":     Quickshell.execDetached({ command: ["bash", "-c", "(sleep 0.5; hyprlock) & disown"] }); break
+            case "logout":   Quickshell.execDetached({ command: ["hyprctl", "dispatch", "exit"] });                  break
+            case "reboot":   Quickshell.execDetached({ command: ["systemctl", "reboot"] });                          break
+            case "shutdown": Quickshell.execDetached({ command: ["systemctl", "poweroff"] });                        break
+            }
+        }
+    }
+
+    // ── Overlays ───────────────────────────────────────────────
     NotificationPopups {}
 
     Osd {
         id: osd
-        suppressed: bar.controlCentreOpen
+        // Do not throw a duplicate readout over the panel's own sliders
+        suppressed: quickPanel.open
     }
 
     Launcher { id: launcher }
 
     WallPicker { id: wallPicker }
 
+    // ── IPC ────────────────────────────────────────────────────
     IpcHandler {
         target: "launcher"
 
         function toggle(): void { launcher.toggle() }
         function open():   void { launcher.show()   }
         function close():  void { launcher.hide()   }
+    }
+
+    IpcHandler {
+        target: "panel"
+
+        function left():  void { dashboard.toggle() }
+        function right(): void { quickPanel.toggle() }
+        function close(): void { dashboard.hide(); quickPanel.hide() }
     }
 
     IpcHandler {
@@ -55,13 +102,6 @@ ShellRoot {
 
     // Brightness has no change notification of its own, so the hyprland
     // brightness keys route through here instead of calling brightnessctl.
-    IpcHandler {
-        target: "controlcenter"
-
-        function toggle(): void { bar.toggleControlCentre() }
-        function close():  void { bar.closeControlCentre()  }
-    }
-
     IpcHandler {
         target: "osd"
 

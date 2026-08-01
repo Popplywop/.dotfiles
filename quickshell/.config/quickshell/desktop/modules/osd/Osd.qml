@@ -77,6 +77,8 @@ Item {
         WlrLayershell.layer:         WlrLayer.Overlay
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
         WlrLayershell.namespace:     "qs-osd"
+        // Floating chrome: never reserve space, windows go underneath
+        exclusionMode: ExclusionMode.Ignore
 
         anchors.bottom: true
         margins.bottom: Theme.osdBottomGap

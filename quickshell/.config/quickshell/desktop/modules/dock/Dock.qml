@@ -124,11 +124,16 @@ Item {
                 }
             }
 
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                onEntered: { root._overDock = true;  root.updateHover() }
-                onExited:  { root._overDock = false; root.updateHover() }
+            // HoverHandler, not MouseArea: a MouseArea here reports exited the
+            // moment the pointer moves onto an app icon's own MouseArea, which
+            // started the hide timer and made the dock flicker while hovering
+            // icons. HoverHandler does not consume events and stays hovered
+            // while descendants are.
+            HoverHandler {
+                onHoveredChanged: {
+                    root._overDock = hovered
+                    root.updateHover()
+                }
             }
 
             Row {

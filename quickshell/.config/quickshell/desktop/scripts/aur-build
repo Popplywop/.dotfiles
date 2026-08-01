@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+# Build an AUR package in a clean chroot, with a mandatory PKGBUILD diff.
+#
+# yay 13 has no --chroot, so this drives devtools directly. Two properties
+# matter:
+#
+#   1. build() and package() run inside an nspawn container with only
+#      base-devel, so a malicious build script cannot read your home
+#      directory, your SSH keys, or your browser profile.
+#   2. Every source file is diffed against the version you approved last
+#      time. A poisoned package almost always shows up as a changed source=
+#      URL, a new .install script, or a curl piped into sh — all of which
+#      appear in that diff.
+#
+# The chroot does NOT protect against a malicious .install script: those run
+# as root on the host at install time. Read the diff.
+#
+# Usage:
+#   aur-build <package>...      review, build, then offer to install
+#   aur-build --review <pkg>    show the diff and stop
+#   aur-build --clean           delete the chroot and start fresh
+
+set -euo pipefail
+
+CHROOT="${AUR_BUILD_CHROOT:-$HOME/.cache/aurchroot}"
+WORK="${AUR_BUILD_WORK:-$HOME/.cache/aurbuild}"
+REVIEWED="${XDG_STATE_HOME:-$HOME/.local/state}/aur-review"
+
+bold=$(tput bold 2>/dev/null || true)
+red=$(tput setaf 1 2>/dev/null || true)
+yellow=$(tput setaf 3 2>/dev/null || true)
+green=$(tput setaf 2 2>/dev/null || true)
+reset=$(tput sgr0 2>/dev/null || true)
+
+die() { printf '%serror:%s %s\n' "$red" "$reset" "$*" >&2; exit 1; }
+info() { printf '%s==>%s %s\n' "$green" "$reset" "$*"; }
+warn() { printf '%swarning:%s %s\n' "$yellow" "$reset" "$*"; }
+
+command -v makechrootpkg >/dev/null || die "devtools not installed"
+
+ensure_chroot() {
+    if [[ ! -d $CHROOT/root ]]; then
+        info "creating build chroot at $CHROOT (one time, needs sudo)"
+        mkdir -p "$CHROOT"
+        sudo mkarchroot "$CHROOT/root" base-devel
+    else
+        info "updating build chroot"
+        sudo arch-nspawn "$CHROOT/root" pacman -Syu --noconfirm
+    fi
+}
+
+# Show what changed since the last approved build. Returns 1 if the user
+# declines, 0 if approved or unchanged.
+review() {
+    local pkg=$1 src=$2
+    local prev="$REVIEWED/$pkg"
+    mkdir -p "$REVIEWED"
+
+    printf '\n%s─── %s ───%s\n' "$bold" "$pkg" "$reset"
+
+    if [[ ! -d $prev ]]; then
+        warn "no previously approved version — this is a first build, read all of it"
+        # Show every file that will execute, not just the PKGBUILD
+        find "$src" -maxdepth 1 -type f \
+             \( -name PKGBUILD -o -name '*.install' -o -name '*.sh' -o -name '*.patch' \) \
+             -print0 | while IFS= read -r -d '' f; do
+            printf '\n%s--- %s%s\n' "$bold" "${f#"$src"/}" "$reset"
+            cat "$f"
+        done
+    else
+        if diff -qr "$prev" "$src" \
+             --exclude=.git --exclude='*.pkg.tar*' --exclude=src --exclude=pkg >/dev/null 2>&1; then
+            info "unchanged since you last approved it"
+            return 0
+        fi
+        printf '\n%schanges since your last approved build:%s\n\n' "$bold" "$reset"
+        diff -ru "$prev" "$src" \
+             --exclude=.git --exclude='*.pkg.tar*' --exclude=src --exclude=pkg || true
+    fi
+
+    printf '\n'
+    # Cheap heuristics for the patterns that show up in real AUR compromises
+    if grep -rqE 'curl[^|]*\|[[:space:]]*(ba)?sh|wget[^|]*\|[[:space:]]*(ba)?sh' "$src" 2>/dev/null; then
+        warn "a source file pipes a download straight into a shell"
+    fi
+    if compgen -G "$src/*.install" >/dev/null; then
+        warn "this package ships an .install script — it runs as root on the host, outside the chroot"
+    fi
+    if grep -rqE '^\s*source=.*(bit\.ly|tinyurl|pastebin|raw\.githubusercontent\.com/[^/]+/[^/]+/[0-9a-f]{40})' "$src" 2>/dev/null; then
+        warn "source= points somewhere unusual for an upstream release"
+    fi
+
+    # --review is for reading only; nothing is going to be built
+    [[ ${REVIEW_ONLY:-0} == 1 ]] && return 0
+
+    read -rp "${bold}build ${pkg}? [y/N] ${reset}" ans
+    [[ ${ans,,} == y ]]
+}
+
+approve() {
+    local pkg=$1 src=$2
+    rm -rf "${REVIEWED:?}/$pkg"
+    mkdir -p "$REVIEWED"
+    cp -r "$src" "$REVIEWED/$pkg"
+    rm -rf "$REVIEWED/$pkg/.git" "$REVIEWED/$pkg/src" "$REVIEWED/$pkg/pkg"
+}
+
+build_one() {
+    local pkg=$1
+    local src="$WORK/$pkg"
+
+    mkdir -p "$WORK"
+    if [[ -d $src/.git ]]; then
+        info "fetching $pkg"
+        git -C "$src" fetch --quiet origin
+        git -C "$src" reset --hard --quiet origin/HEAD
+    else
+        info "cloning $pkg from the AUR"
+        rm -rf "$src"
+        git clone --quiet "https://aur.archlinux.org/$pkg.git" "$src" \
+            || die "$pkg not found in the AUR"
+    fi
+
+    [[ -f $src/PKGBUILD ]] || die "$pkg has no PKGBUILD"
+
+    review "$pkg" "$src" || { warn "skipped $pkg"; return 0; }
+    [[ ${REVIEW_ONLY:-0} == 1 ]] && return 0
+
+    ensure_chroot
+    info "building $pkg in the chroot"
+    ( cd "$src" && makechrootpkg -c -r "$CHROOT" )
+
+    approve "$pkg" "$src"
+
+    local built
+    mapfile -t built < <(find "$src" -maxdepth 1 -name '*.pkg.tar*' -newer "$src/PKGBUILD")
+    if ((${#built[@]} == 0)); then
+        warn "no package artifact produced for $pkg"
+        return 1
+    fi
+
+    printf '\n'
+    info "built: ${built[*]##*/}"
+    read -rp "${bold}install now? [y/N] ${reset}" ans
+    [[ ${ans,,} == y ]] && sudo pacman -U "${built[@]}"
+    return 0
+}
+
+main() {
+    local -a pkgs=()
+    for a in "$@"; do
+        case $a in
+            --review) REVIEW_ONLY=1 ;;
+            --clean)  info "removing $CHROOT"; sudo rm -rf "$CHROOT"; exit 0 ;;
+            -h|--help) sed -n '2,/^set -euo/p' "$0" | sed 's/^# \?//;$d'; exit 0 ;;
+            -*) die "unknown option $a" ;;
+            *) pkgs+=("$a") ;;
+        esac
+    done
+    ((${#pkgs[@]})) || die "usage: aur-build [--review] <package>..."
+
+    for p in "${pkgs[@]}"; do build_one "$p"; done
+}
+
+main "$@"

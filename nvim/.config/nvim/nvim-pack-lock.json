@@ -1,0 +1,8 @@
+{
+  "plugins": {
+    "roslyn.nvim": {
+      "rev": "7d8c166a0c70473ffa558d4d2430769d581fa8dd",
+      "src": "https://github.com/seblyng/roslyn.nvim"
+    }
+  }
+}

@@ -36,3 +36,4 @@ function yy() {
 }
 
 eval "$(zoxide init bash --cmd cd)"
+. "$HOME/.cargo/env"

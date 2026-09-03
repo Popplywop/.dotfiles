@@ -1,7 +1,7 @@
--- Config for these two lives in lsp/lua_ls.lua and lsp/tsgo.lua, picked up
+-- Config for these lives in lsp/clangd.lua, lsp/lua_ls.lua and lsp/tsgo.lua, picked up
 -- automatically from the `lsp/` folder on runtimepath.
 -- roslyn enables itself (see lua/plugins.lua).
-vim.lsp.enable({ "lua_ls", "tsgo" })
+vim.lsp.enable({ "clangd", "lua_ls", "tsgo" })
 
 vim.diagnostic.config({
 	virtual_text = true,

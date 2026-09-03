@@ -37,3 +37,6 @@ function yy() {
 
 eval "$(zoxide init bash --cmd cd)"
 . "$HOME/.cargo/env"
+
+. "$HOME/.atuin/bin/env"
+eval "$(atuin init bash)"

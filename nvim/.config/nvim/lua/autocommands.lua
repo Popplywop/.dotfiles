@@ -19,3 +19,22 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 		end
 	end,
 })
+
+-- Highlight matches only while typing a search; drop them on leaving the cmdline
+local search_hl = vim.api.nvim_create_augroup("search_highlight", { clear = true })
+
+vim.api.nvim_create_autocmd("CmdlineEnter", {
+	group = search_hl,
+	pattern = { "/", "?" },
+	callback = function()
+		vim.o.hlsearch = true
+	end,
+})
+
+vim.api.nvim_create_autocmd("CmdlineLeave", {
+	group = search_hl,
+	pattern = { "/", "?" },
+	callback = function()
+		vim.o.hlsearch = false
+	end,
+})

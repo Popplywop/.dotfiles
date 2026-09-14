@@ -36,7 +36,15 @@ function yy() {
 }
 
 eval "$(zoxide init bash --cmd cd)"
-. "$HOME/.cargo/env"
 
 . "$HOME/.atuin/bin/env"
 eval "$(atuin init bash)"
+
+# awsl: fzf-pick an AWS profile and export it for this shell (script: ~/.local/bin/awsl)
+awsl() {
+  if [ "${1:-}" = "-u" ]; then unset AWS_PROFILE; echo "AWS_PROFILE unset" >&2; return; fi
+  local profile
+  profile="$(command awsl "$@")" || return
+  export AWS_PROFILE="$profile"
+  echo "AWS_PROFILE=$AWS_PROFILE" >&2
+}

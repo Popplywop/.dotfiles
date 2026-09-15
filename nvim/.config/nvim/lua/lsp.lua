@@ -8,6 +8,33 @@ vim.diagnostic.config({
 	severity_sort = true,
 })
 
+-- Diagnostics are pushed by the server (textDocument/publishDiagnostics) and
+-- cached by vim.diagnostic, so navigating them is a local lookup -- no
+-- request round-trip. These are global, not buffer-local on LspAttach:
+-- vim.diagnostic is the shared sink for every producer, LSP or not.
+--
+-- Nvim already maps ]d/[d (any severity), ]D/[D (first/last) and <C-w>d
+-- (float for the diagnostic under the cursor). Added here: the same motions
+-- restricted to warnings and errors, and the two list views.
+local at_least_warn = { severity = { min = vim.diagnostic.severity.WARN } }
+
+vim.keymap.set("n", "]e", function()
+	vim.diagnostic.jump(vim.tbl_extend("error", at_least_warn, { count = vim.v.count1 }))
+end, { desc = "next warning/error" })
+
+vim.keymap.set("n", "[e", function()
+	vim.diagnostic.jump(vim.tbl_extend("error", at_least_warn, { count = -vim.v.count1 }))
+end, { desc = "previous warning/error" })
+
+-- Current buffer to the location list, every buffer to the quickfix list.
+vim.keymap.set("n", "<leader>dd", function()
+	vim.diagnostic.setloclist({ open = true })
+end, { desc = "buffer diagnostics (loclist)" })
+
+vim.keymap.set("n", "<leader>dq", function()
+	vim.diagnostic.setqflist({ open = true })
+end, { desc = "all diagnostics (quickfix)" })
+
 vim.api.nvim_create_autocmd("LspAttach", {
 	group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),
 	callback = function(ev)

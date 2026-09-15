@@ -34,5 +34,3 @@ vim.o.undofile = true
 vim.o.swapfile = false
 vim.o.signcolumn = "yes"
 
--- native LSP completion menu (see lua/lsp.lua)
-vim.o.completeopt = "menuone,noselect,popup"

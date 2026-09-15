@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# Attach to a remote tmux session over ssh.
+#
+# Usage:
+#   tat                  pick a host from ~/.ssh/config (fzf if available)
+#   tat <host> [session] attach to <session> on <host> (default: main)
+#   tat --list           print the hosts that would be offered
+
+set -euo pipefail
+
+SSH_CONFIG="${SSH_CONFIG:-$HOME/.ssh/config}"
+DEFAULT_SESSION="${TMUX_SSH_SESSION:-main}"
+
+die() {
+    printf 'tat: %s\n' "$*" >&2
+    exit 1
+}
+
+list_hosts() {
+    [[ -r "$SSH_CONFIG" ]] || die "cannot read $SSH_CONFIG"
+    awk '
+        tolower($1) == "host" {
+            for (i = 2; i <= NF; i++) if ($i !~ /[*?!]/) print $i
+        }
+    ' "$SSH_CONFIG" | sort -u
+}
+
+pick_host() {
+    local hosts
+    hosts=$(list_hosts)
+    [[ -n "$hosts" ]] || die "no hosts found in $SSH_CONFIG"
+    if command -v fzf >/dev/null 2>&1; then
+        printf '%s\n' "$hosts" | fzf --prompt='ssh host> ' --height=40% --reverse
+    else
+        printf '%s\n' "$hosts" | nl -w2 -s'. ' >&2
+        local n
+        read -rp 'host number: ' n
+        printf '%s\n' "$hosts" | sed -n "${n}p"
+    fi
+}
+
+attach() {
+    local host=$1 session=$2
+    # One round trip: verify tmux on the remote, then exec into it.
+    local -a cmd=(ssh -t "$host"
+        "command -v tmux >/dev/null 2>&1 || { echo 'tat: tmux not installed on '\"\$(hostname)\" >&2; exit 127; }; \
+         exec tmux new-session -A -s '$session'")
+
+    if [[ -n "${TMUX:-}" ]]; then
+        # Already inside a local tmux: detach this client and run ssh in its
+        # place, so the remote tmux is not nested inside the local one.
+        # When ssh exits, reattach to the session we came from.
+        local local_session
+        local_session=$(tmux display-message -p '#S')
+        exec tmux detach-client -E \
+            "$(printf '%q ' "${cmd[@]}"); exec tmux attach-session -t $(printf '%q' "$local_session")"
+    fi
+    exec "${cmd[@]}"
+}
+
+main() {
+    case "${1:-}" in
+        -l|--list) list_hosts; exit 0 ;;
+        -h|--help) sed -n '2,7p' "$0"; exit 0 ;;
+    esac
+
+    local host=${1:-} session=${2:-$DEFAULT_SESSION}
+    if [[ -z "$host" ]]; then
+        host=$(pick_host)
+        [[ -n "$host" ]] || die "no host selected"
+    fi
+    attach "$host" "$session"
+}
+
+main "$@"

@@ -1,4 +1,4 @@
-vim.o.guifont = "JetBrainsMono:h14"
+vim.o.guifont = "Iosevka:h14"
 
 vim.o.number = true
 vim.o.relativenumber = true
@@ -33,4 +33,7 @@ vim.o.writebackup = false
 vim.o.undofile = true
 vim.o.swapfile = false
 vim.o.signcolumn = "yes"
+
+vim.o.foldlevelstart = 99
+vim.o.foldtext = ""
 

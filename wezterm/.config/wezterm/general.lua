@@ -2,7 +2,7 @@ local wezterm = require 'wezterm'
 local module = {}
 
 function module.apply_to_config(config)
-  config.font = wezterm.font('JetBrainsMono Nerd Font', { weight = 'Bold', italic = false })
+  config.font = wezterm.font('Iosevka Nerd Font', { weight = 'Bold', italic = false })
   config.font_size = 13
 
   config.enable_tab_bar = false

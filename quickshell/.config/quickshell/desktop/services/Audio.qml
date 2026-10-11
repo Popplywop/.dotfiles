@@ -26,9 +26,12 @@ Singleton {
     readonly property int  volume: root.ready ? Math.round(sink.audio.volume * 100) : 0
     readonly property bool muted:  root.ready ? sink.audio.muted : false
 
-    readonly property string sinkName: sink
-        ? (sink.description || sink.nickname || sink.name || "")
-        : ""
+    readonly property string sinkName: sink ? root.label(sink) : ""
+
+    // Hardware/virtual output devices (streams excluded), stable order
+    readonly property var sinks: Pipewire.nodes.values
+        .filter(n => n.isSink && !n.isStream)
+        .sort((a, b) => root.label(a).localeCompare(root.label(b)))
 
     readonly property bool micReady: source !== null && source.audio !== null
     readonly property int  micVolume: root.micReady ? Math.round(source.audio.volume * 100) : 0
@@ -37,6 +40,15 @@ Singleton {
     // Binds the nodes so their audio properties are live
     PwObjectTracker {
         objects: [root.sink, root.source].filter(n => n !== null)
+    }
+
+    function label(node) {
+        return node.description || node.nickname || node.name || ""
+    }
+
+    // Moves the default and, via the pulse shim, any playing streams follow
+    function setDefaultSink(node) {
+        Pipewire.preferredDefaultAudioSink = node
     }
 
     function setVolume(pct) {

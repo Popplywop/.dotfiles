@@ -143,6 +143,8 @@ SlidePanel {
         }
     }
 
+    OutputSection { contentWidth: parent.width }
+
     // ── Brightness ─────────────────────────────────────────────
     SectionHeader {
         text:    "Brightness"

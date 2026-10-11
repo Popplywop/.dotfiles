@@ -5,10 +5,9 @@ profile laptop_only {
     output eDP-1 enable position 0,0
 }
 
-# Profile: external monitor only (laptop display disabled)
-# Replace EXTERNAL_OUTPUT below with your actual output name.
-# To find it: plug in your monitor and run: hyprctl monitors all
+# Profile: any external monitor, laptop display disabled.
+# "*" matches whichever output the monitor shows up as (DP-x, HDMI-A-x...).
 profile external_only {
-    output DP-1 enable position 0,0
     output eDP-1 disable
+    output * enable
 }

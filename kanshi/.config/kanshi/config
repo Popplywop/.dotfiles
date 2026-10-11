@@ -1,8 +1,12 @@
 # Kanshi display profile configuration
 #
+# Quickshell windows bind to the screen present at startup, so each profile
+# restarts it to re-create them on the active output.
+#
 # Profile: laptop display only (no external connected)
 profile laptop_only {
     output eDP-1 enable position 0,0
+    exec systemctl --user restart qs-desktop.service
 }
 
 # Profile: any external monitor, laptop display disabled.
@@ -10,4 +14,5 @@ profile laptop_only {
 profile external_only {
     output eDP-1 disable
     output * enable
+    exec systemctl --user restart qs-desktop.service
 }

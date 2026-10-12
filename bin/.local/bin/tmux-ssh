@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Pick an ssh host from ~/.ssh/config and open it in a new tmux window.
+hosts=$(awk '$1 == "Host" { for (i = 2; i <= NF; i++) if ($i !~ /[*?!]/) print $i }' ~/.ssh/config \
+  | grep -v -E '^(github\.com|bitbucket\.org)$')
+h=$(fzf --prompt='ssh> ' <<<"$hosts") || exit 0
+tmux new-window -n "$h" "ssh -t $h"

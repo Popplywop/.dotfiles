@@ -54,4 +54,13 @@ hl.window_rule({
     center = true,
 })
 
+hl.window_rule({
+    -- Bitwarden extension popup in Chromium: float over the browser
+    name  = "bitwarden-popup",
+    match = { class = "^chrome-nngceckbapebfimnlniiiahkandclblb-Default$" },
+
+    float  = true,
+    center = true,
+})
+
 return true

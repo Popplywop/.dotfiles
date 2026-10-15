@@ -11,6 +11,10 @@ M.formatters = {
 	json = "prettier --stdin-filepath %",
 }
 
+-- Filetypes where the blocking LSP format on save is too slow (Roslyn has to
+-- compile the Razor file first, freezing nvim for 1-2s). Use `g=` manually.
+M.skip_lsp_format = { razor = true, cshtml = true }
+
 vim.api.nvim_create_autocmd("BufWritePre", {
 	callback = function(args)
 		local bufnr = args.buf
@@ -33,7 +37,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 				end
 				vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, formatted)
 			end
-		else
+		elseif not M.skip_lsp_format[ft] then
 			for _, cl in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
 				if cl:supports_method("textDocument/formatting") then
 					vim.lsp.buf.format({ bufnr = bufnr, async = false })

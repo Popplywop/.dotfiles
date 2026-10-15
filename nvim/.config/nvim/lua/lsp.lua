@@ -1,7 +1,8 @@
--- Config for these lives in lsp/clangd.lua, lsp/lua_ls.lua and lsp/tsgo.lua, picked up
+-- Config for these lives in lsp/clangd.lua, lsp/lua_ls.lua, lsp/tsgo.lua and lsp/html.lua
+-- (html is required by roslyn.nvim's Razor support), picked up
 -- automatically from the `lsp/` folder on runtimepath.
 -- roslyn enables itself (see lua/plugins.lua).
-vim.lsp.enable({ "clangd", "lua_ls", "tsgo" })
+vim.lsp.enable({ "clangd", "lua_ls", "tsgo", "html" })
 
 vim.diagnostic.config({
 	virtual_text = true,

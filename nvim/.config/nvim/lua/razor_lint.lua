@@ -12,6 +12,18 @@ local optional_end = {}
 for t in ("li p td th tr dt dd option thead tbody tfoot colgroup optgroup"):gmatch("%S+") do
 	optional_end[t] = true
 end
+-- Used to tell `text<b>` (markup) from `List<string>` (C# generic).
+local html_tags = {}
+for t in
+	([[a abbr address area article aside audio b base bdi bdo blockquote body br button canvas caption cite code
+	col colgroup data datalist dd del details dfn dialog div dl dt em embed fieldset figcaption figure footer form
+	h1 h2 h3 h4 h5 h6 head header hr html i iframe img input ins kbd label legend li link main map mark meta meter
+	nav noscript object ol optgroup option output p param picture pre progress q rp rt ruby s samp script section
+	select small source span strong style sub summary sup svg table tbody td template textarea tfoot th thead time
+	title tr track u ul var video wbr text]]):gmatch("%S+")
+do
+	html_tags[t] = true
+end
 local raw_text = { script = true, style = true }
 
 -- Find the `>` ending a tag that starts at `i` (just past the tag name),
@@ -94,7 +106,7 @@ local function check(buf)
 				break
 			end
 			i = e + 3
-		elseif prev:match("[%w_]") then
+		elseif prev:match("[%w_]") and s:sub(lt + 1, lt + 1) ~= "/" and not html_tags[(s:match("^<([%a][%w]*)", lt) or ""):lower()] then
 			i = lt + 1 -- generic in C# (List<string>), not a tag
 		else
 			local closing, name = s:match("^</?()([%a][%w:._-]*)", lt)

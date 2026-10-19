@@ -17,3 +17,14 @@ vim.pack.add({
 	"https://github.com/seblyng/roslyn.nvim",
 	"https://github.com/stevearc/oil.nvim",
 })
+
+-- Roslyn only analyzes open buffers by default. Widen to the whole solution so
+-- unopened files' errors reach vim.diagnostic and <leader>dq (quickfix).
+vim.lsp.config("roslyn", {
+	settings = {
+		["csharp|background_analysis"] = {
+			dotnet_analyzer_diagnostics_scope = "fullSolution",
+			dotnet_compiler_diagnostics_scope = "fullSolution",
+		},
+	},
+})

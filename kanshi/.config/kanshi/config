@@ -9,10 +9,11 @@ profile laptop_only {
     exec systemctl --user restart qs-desktop.service
 }
 
-# Profile: any external monitor, laptop display disabled.
+# Profile: any external monitor plus the laptop display.
 # "*" matches whichever output the monitor shows up as (DP-x, HDMI-A-x...).
-profile external_only {
-    output eDP-1 disable
+# Lid close is not handled here; kanshi only sees outputs, not the lid switch.
+profile external_and_laptop {
+    output eDP-1 enable position 0,0
     output * enable
     exec systemctl --user restart qs-desktop.service
 }
